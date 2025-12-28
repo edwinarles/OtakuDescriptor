@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OtakuDescriptor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="payment-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- ✨ NUEVA: Barra de estado de búsquedas (se crea automáticamente por JavaScript) -->
+    <!-- El script agregará aquí: <div id="search-status-bar">...</div> -->
+
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span>OtakuDescriptor</span>
+            </div>
+            <button id="loginBtn" class="login-btn" onclick="openLoginModal()">Login / Register</button>
+        </div>
+    </div>
+
+
+    <div class="hero">
+        <h1>OtakuDescriptor</h1>
+        <p>Describe any anime in your own words and let AI find it</p>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput"
+                    placeholder="Try: A boy who dreams of becoming Hokage and never gives up...">
+                <button class="search-btn" onclick="buscar()">Search</button>
+                <button class="tags-toggle-btn" onclick="toggleTagsPanel()">
+                    🏷️ Tags
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel de Tags -->
+        <div id="tagsPanel" style="display: none;" class="tags-panel">
+            <div class="tags-panel-header">
+                <h3>Search by Tags</h3>
+                <p>Select one or more tags to filter anime. Anime must have ALL selected tags.</p>
+            </div>
+
+            <!-- Tags seleccionados -->
+            <div id="selectedTagsContainer" class="selected-tags-container" style="display: none;">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <!-- Etiquetas disponibles -->
+            <div class="tags-grid">
+                <h4>Available Tags:</h4>
+                <div id="tagsContainer" class="tags-container">
+                    <!-- Se llena dinamicamente con los tags -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters" id="filters">
+            <button class="filter-btn active" onclick="cargarTendencias(this, 'all')">All</button>
+            <button class="filter-btn" onclick="cargarTendencias(this, 'trending')">Trending Now</button>
+            <button class="filter-btn" onclick="cargarTendencias(this, 'popular')">Most Popular</button>
+            <button class="filter-btn" onclick="cargarTendencias(this, 'top_rated')">Top Rated</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Searching with AI...</p>
+        </div>
+
+        <div id="resultsSection" style="display: none;">
+            <div class="section-header">
+                <h2 id="resultsTitle">Search Results</h2>
+                <span id="resultsCount" style="color: #888;"></span>
+            </div>
+            <div id="results" class="anime-grid"></div>
+        </div>
+
+        <div id="trendingSection">
+            <div id="trending" class="anime-grid"></div>
+            <div id="pagination" class="pagination-container" style="display: none;"></div>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">🔍</div>
+            <h3>No results found</h3>
+            <p>Try adjusting your search or browse our collection</p>
+        </div>
+    </div>
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content login-modal-content">
+            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back!</h2>
+                <div class="input-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button class="btn-primary" onclick="handlePasswordLogin()">Sign In</button>
+
+                <div class="auth-divider"><span>OR</span></div>
+
+                <button class="btn-google" onclick="handleGoogleLogin()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    Continue with Google
+                </button>
+
+                <p class="auth-link"><a href="#" onclick="showForgotPassword()">Forgot Password?</a></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <h2>Create Account</h2>
+                <div class="input-group">
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="regPassword" placeholder="Password" required>
+                </div>
+                <button class="btn-primary" onclick="handlePasswordRegister()">Sign Up</button>
+            </div>
+
+            <p id="loginStatus" class="status-message"></p>
+        </div>
+    </div>
+
+    <!-- Script integrado con sistema de pagos -->
+    <script src="funcionamiento.js"></script>
+</body>
+
+</html>

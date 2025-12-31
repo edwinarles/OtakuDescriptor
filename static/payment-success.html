@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Pago Exitoso! - OtakuDescriptor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="payment-styles.css">
+    <style>
+        .success-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .success-content {
+            background: linear-gradient(135deg, #1e1b3a 0%, #1e224a 100%);
+            padding: 60px 40px;
+            border-radius: 25px;
+            max-width: 600px;
+            text-align: center;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin: 0 auto 30px;
+            animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        @keyframes successPop {
+            0% {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .success-content h1 {
+            color: white;
+            font-size: 36px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .success-content p {
+            color: #b8b8b8;
+            font-size: 18px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .premium-badge {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 30px 0;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .benefits-list {
+            text-align: left;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .benefits-list li {
+            color: #b8b8b8;
+            margin: 12px 0;
+            font-size: 16px;
+            list-style: none;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .benefits-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #66bb6a;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .btn-home {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            color: white;
+            text-decoration: none;
+            padding: 18px 45px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-home:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(139, 92, 246, 0.6);
+        }
+
+        .processing-message {
+            background: rgba(139, 92, 246, 0.15);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            margin: 20px 0;
+            color: #a78bfa;
+            font-size: 14px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(139, 92, 246, 0.2);
+            border-top: 4px solid #8b5cf6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .success-content {
+                padding: 40px 25px;
+            }
+
+            .success-content h1 {
+                font-size: 28px;
+            }
+
+            .premium-badge {
+                font-size: 18px;
+                padding: 12px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="success-page">
+        <div class="success-content">
+            <div id="processing-state" style="display: block;">
+                <div class="spinner"></div>
+                <h1>Procesando tu pago...</h1>
+                <p>Por favor espera mientras confirmamos tu pago con PayPal</p>
+                <div class="processing-message">
+                    ⏳ Esto puede tomar unos segundos
+                </div>
+            </div>
+
+            <div id="success-state" style="display: none;">
+                <div class="success-icon">✓</div>
+                <h1>¡Pago Exitoso!</h1>
+                <p>Tu cuenta ha sido actualizada a Premium</p>
+
+                <div class="premium-badge">
+                    💎 Premium Activado
+                </div>
+
+                <div class="benefits-list">
+                    <h3 style="color: white; margin-bottom: 15px;">Ahora disfrutas de:</h3>
+                    <ul>
+                        <li>1,000 búsquedas diarias</li>
+                        <li>Acceso prioritario al servidor</li>
+                        <li>Sin anuncios</li>
+                        <li>Soporte premium</li>
+                    </ul>
+                </div>
+
+                <p style="color: #888; font-size: 14px; margin-top: 20px;">
+                    Tu suscripción premium es válida por 30 días
+                </p>
+
+                <a href="/" class="btn-home">Comenzar a Buscar</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="funcionamiento.js"></script>
+    <script>
+        // Variable para evitar múltiples llamadas
+        let processingPayment = false;
+
+        // Procesar el pago automáticamente
+        async function procesarPago() {
+            // Prevenir múltiples ejecuciones
+            if (processingPayment) {
+                console.log('⚠️ Ya hay un pago en proceso');
+                return;
+            }
+            processingPayment = true;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            // PayPal envía el orderID como 'token' en la URL
+            const token = urlParams.get('token');
+            const orderId = token; // Usar el token directamente como orderId
+
+            console.log('🔍 Token (Order ID):', orderId);
+
+            if (!orderId) {
+                console.error('❌ Falta el token de la orden');
+                document.getElementById('processing-state').style.display = 'none';
+                document.getElementById('success-state').innerHTML = `
+                    <div class="success-icon" style="background: linear-gradient(135deg, #f44336 0%, #e57373 100%);">✕</div>
+                    <h1>Error en el Pago</h1>
+                    <p>No se encontró la información del pago. Por favor, intenta de nuevo.</p>
+                    <a href="/" class="btn-home">Volver al Inicio</a>
+                `;
+                document.getElementById('success-state').style.display = 'block';
+                return;
+            }
+
+            try {
+                console.log('📡 Capturando pago...');
+
+                // Capturar el pago
+                const response = await fetch('/api/payment/capture-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId })
+                });
+
+                console.log('📡 Status:', response.status);
+                const result = await response.json();
+                console.log('📡 Result:', result);
+
+                if (response.ok && result.status === 'success') {
+                    // Limpiar orden guardada
+                    localStorage.removeItem('paypal_order_id');
+
+                    console.log('✅ Pago completado exitosamente');
+
+                    // Mostrar éxito
+                    setTimeout(() => {
+                        document.getElementById('processing-state').style.display = 'none';
+                        document.getElementById('success-state').style.display = 'block';
+                    }, 1000);
+                } else {
+                    throw new Error(result.error || 'Pago no completado');
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('processing-state').style.display = 'none';
+                document.getElementById('success-state').innerHTML = `
+                    <div class="success-icon" style="background: linear-gradient(135deg, #f44336 0%, #e57373 100%);">✕</div>
+                    <h1>Error al Procesar</h1>
+                    <p>${error.message || 'Hubo un problema al confirmar tu pago'}</p>
+                    <p style="font-size: 14px; color: #888; margin-top: 15px;">
+                        Si el dinero fue debitado, contacta con soporte con este ID: ${orderId}
+                    </p>
+                    <a href="/" class="btn-home">Volver al Inicio</a>
+                `;
+                document.getElementById('success-state').style.display = 'block';
+            } finally {
+                processingPayment = false;
+            }
+        }
+
+        // Ejecutar al cargar la página - UNA SOLA VEZ
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Página cargada, procesando pago...');
+            procesarPago();
+        });
+    </script>
+</body>
+
+</html>

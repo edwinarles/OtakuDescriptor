@@ -2,7 +2,7 @@ from flask import Flask, send_from_directory
 from flask_cors import CORS
 from config import Config
 from database import db
-from search_engine import SearchEngine
+from search_system import SearchEngine
 
 # Blueprints (Planos de rutas)
 from routes.auth import auth_bp

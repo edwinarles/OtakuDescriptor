@@ -5,7 +5,7 @@ import hashlib
 from openai import OpenAI
 
 from database import db
-from search_engine import SearchEngine
+from search_system import SearchEngine
 from utils import normalizar_texto, limpiar_html
 from config import Config
 
@@ -118,17 +118,21 @@ def search_semantic():
         )
         vector = resp.data[0].embedding
         
-        results = SearchEngine.search(vector, top_k)
+        # Usar búsqueda vectorial pura (solo embeddings)
+        results = SearchEngine.search(vector, top_k=top_k)
         
         return jsonify({
             'results': results,
             'searches_remaining': limit - count - 1,
             'is_premium': is_premium,
-            'is_anonymous': is_anonymous
+            'is_anonymous': is_anonymous,
+            'search_mode': 'embeddings'  # Indicar que se usó búsqueda vectorial
         })
         
     except Exception as e:
         print(f"Search Error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': 'Search failed'}), 500
 
 @search_bp.route('/animes', methods=['GET'])

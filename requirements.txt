@@ -12,5 +12,4 @@ python-dotenv>=1.0.0
 pydantic>=2.5.0
 gunicorn>=21.2.0
 
-
-
+tqdm

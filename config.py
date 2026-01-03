@@ -26,7 +26,7 @@ class Config:
     PAYPAL_CLIENT_SECRET = os.environ.get("PAYPAL_CLIENT_SECRET")
     PAYPAL_MODE = os.environ.get("PAYPAL_MODE", "sandbox")
     PAYPAL_API = "https://api-m.sandbox.paypal.com" if PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
-    PREMIUM_PRICE = "9.99"
+    PREMIUM_PRICE = "3.00"
     
     # Email (SMTP)
     SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")

@@ -19,7 +19,11 @@
             <div class="logo">
                 <span>OtakuDescriptor</span>
             </div>
-            <button id="loginBtn" class="login-btn" onclick="openLoginModal()">Login / Register</button>
+            <div class="auth-buttons">
+                <button id="loginBtn" class="login-btn" onclick="openLoginModal()">Login / Register</button>
+                <button id="logoutBtn" class="logout-btn" onclick="handleLogout()"
+                    style="display: none;">Logout</button>
+            </div>
         </div>
     </div>
 

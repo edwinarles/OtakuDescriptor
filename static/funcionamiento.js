@@ -398,11 +398,17 @@ class SearchUIManager {
             const countSpan = document.getElementById('search-count');
             const upgradeBtn = document.getElementById('upgrade-button');
             const statusContainer = document.querySelector('.status-container');
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
 
             if (!countSpan || !upgradeBtn || !statusContainer) return;
 
             // Usuario anónimo (sin API key o sin status)
             if (!status) {
+                // Mostrar botón de login, ocultar logout
+                if (loginBtn) loginBtn.style.display = 'block';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+
                 // Obtener datos de la última búsqueda si existen
                 const lastSearchData = window.lastSearchData;
                 if (lastSearchData && lastSearchData.is_anonymous) {
@@ -432,7 +438,10 @@ class SearchUIManager {
                 return;
             }
 
-            // Usuario registrado
+            // Usuario registrado - mostrar botón de logout, ocultar login
+            if (loginBtn) loginBtn.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'block';
+
             if (status.is_premium) {
                 countSpan.innerHTML = `
                     💎 <strong>Premium</strong> - 
@@ -931,6 +940,17 @@ async function handlePasswordRegister() {
                 closeLoginModal();
                 location.reload();
             }, 1000);
+        } else if (res.require_email_verification) {
+            // Registro exitoso - mostrar mensaje de verificación de email
+            status.innerHTML = `
+                ✅ <strong>¡Cuenta creada!</strong><br>
+                📧 Te hemos enviado un email de verificación a <strong>${email}</strong>.<br>
+                <small>Por favor revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.</small>
+            `;
+            status.className = "status-message success-text";
+            // Limpiar campos
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
         } else {
             status.textContent = res.error || "Registration failed";
             status.className = "status-message error-text";
@@ -946,6 +966,40 @@ window.onclick = function (event) {
     const modal = document.getElementById('loginModal');
     if (event.target == modal) {
         closeLoginModal();
+    }
+}
+
+// ========================================
+// FUNCIÓN DE LOGOUT
+// ========================================
+
+function handleLogout() {
+    if (confirm('¿Estás seguro de que quieres cerrar sesión? Regresarás al modo anónimo con búsquedas limitadas.')) {
+        // Limpiar localStorage
+        localStorage.removeItem('anime_api_key');
+        localStorage.removeItem('paypal_order_id');
+
+        // Actualizar la API
+        searchAPI.apiKey = null;
+
+        // Limpiar datos de la última búsqueda
+        window.lastSearchData = null;
+
+        // Actualizar UI inmediatamente
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        if (loginBtn) loginBtn.style.display = 'block';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+
+        // Actualizar el estado
+        uiManager.updateStatus();
+
+        // Mostrar mensaje de confirmación
+        alert('Has cerrado sesión correctamente. Ahora estás en modo anónimo.');
+
+        // Recargar la página para resetear todo
+        window.location.reload();
     }
 }
 

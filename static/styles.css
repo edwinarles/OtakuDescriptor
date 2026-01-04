@@ -697,7 +697,13 @@ body {
     }
 }
 
-/* Login & Modal Styles */
+/* Login & Logout Buttons */
+.auth-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 .login-btn {
     background: transparent;
     border: 2px solid #8b5cf6;
@@ -707,15 +713,39 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    margin-left: auto;
-    /* Push to right if in flex container */
     font-size: 0.95em;
+    white-space: nowrap;
 }
 
 .login-btn:hover {
     background: rgba(139, 92, 246, 0.15);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.logout-btn {
+    background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95em;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(252, 129, 129, 0.3);
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #f56565 0%, #fc8181 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(252, 129, 129, 0.5);
+}
+
+.logout-btn:active,
+.login-btn:active {
+    transform: translateY(0);
 }
 
 .modal {

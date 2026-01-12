@@ -34,6 +34,31 @@ app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(payment_bp, url_prefix='/api/payment')
 app.register_blueprint(search_bp, url_prefix='/api')
 
+# Global error handlers to prevent HTML 500 errors
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle all 500 errors with JSON response"""
+    from flask import jsonify
+    print(f"❌ 500 ERROR HANDLER TRIGGERED: {error}")
+    return jsonify({
+        'error': 'Internal server error',
+        'details': str(error)
+    }), 500
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    """Catch-all handler for unhandled exceptions"""
+    from flask import jsonify
+    import traceback
+    print(f"❌ UNHANDLED EXCEPTION: {type(error).__name__}")
+    print(f"   Details: {error}")
+    traceback.print_exc()
+    return jsonify({
+        'error': 'Unexpected server error',
+        'type': type(error).__name__,
+        'details': str(error)
+    }), 500
+
 # Rutas estáticas
 @app.route('/')
 def home():

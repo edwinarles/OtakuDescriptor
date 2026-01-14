@@ -103,11 +103,15 @@ def search_semantic():
     
     # Log search
     if is_anonymous:
+        print(f"📝 ANONYMOUS SEARCH - Logging search for session_id: {search_key[:16]}...")
+        print(f"   Query: '{query}'")
+        print(f"   Timestamp: {datetime.now()}")
         db.db.anonymous_searches.insert_one({
             'session_id': search_key,
             'query': query,
             'timestamp': datetime.now()
         })
+        print(f"   ✅ Search logged successfully")
     else:
         db.db.searches.insert_one({
             'api_key': search_key,
@@ -133,6 +137,7 @@ def search_semantic():
                 'session_id': search_key,
                 'timestamp': {'$gt': one_hour_ago}
             })
+            print(f"📊 ANONYMOUS COUNT AFTER SEARCH: {count}/{limit}")
         else:
             count = db.db.searches.count_documents({
                 'api_key': search_key,
@@ -146,6 +151,7 @@ def search_semantic():
             'is_anonymous': is_anonymous,
             'search_mode': 'embeddings'  # Indicate vector search was used
         })
+
         
     except Exception as e:
         print(f"Search Error: {e}")

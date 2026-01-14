@@ -14,6 +14,8 @@ let allAvailableTags = new Set();
 let allAnimesCache = null;
 let allAnimesCacheLoaded = false;
 let isTagSearchActive = false;
+let isSearching = false;  // Prevent duplicate search calls
+
 
 // ========================================
 // AUTHENTICATION AND PAYMENT SYSTEM
@@ -711,12 +713,20 @@ function toggleTagsPanel() {
 // ========================================
 
 async function buscar() {
+    // Prevent duplicate searches (e.g., when switching tabs)
+    if (isSearching) {
+        console.log('⚠️ Search already in progress, ignoring duplicate call');
+        return;
+    }
+
+    console.log('🔍 buscar() function called at', new Date().toISOString());
+
     selectedTags = [];
     actualizarTagsSeleccionados();
     isTagSearchActive = false;
 
     const query = document.getElementById('searchInput').value.trim();
-    const MAX_CHARS = 155;
+    const MAX_CHARS = 250;
 
     if (query.length > MAX_CHARS) {
         alert(`The description is too long. Please limit it to a maximum of ${MAX_CHARS} characters to perform the search.`);
@@ -729,13 +739,23 @@ async function buscar() {
         return;
     }
 
+    // Set searching flag
+    isSearching = true;
+    console.log('✅ isSearching flag set to true, making API call...');
+
     document.getElementById('loading').style.display = 'block';
     document.getElementById('resultsSection').style.display = 'none';
     document.getElementById('trendingSection').style.display = 'none';
     document.getElementById('emptyState').style.display = 'none';
 
     try {
+        console.log('📡 Calling searchAPI.search() with query:', query);
         const data = await searchAPI.search(query, 18);
+        console.log('📥 Search API response received:', {
+            results_count: data.results?.length,
+            searches_remaining: data.searches_remaining,
+            is_anonymous: data.is_anonymous
+        });
 
         // Save search data to update status
         window.lastSearchData = data;
@@ -766,8 +786,14 @@ async function buscar() {
             userMessage = 'Sorry, the server is not available.';
         }
         alert(userMessage);
+    } finally {
+        // Always clear the searching flag
+        console.log('🔓 isSearching flag cleared');
+        isSearching = false;
     }
 }
+
+
 
 // ========================================
 // DISPLAY FUNCTIONS

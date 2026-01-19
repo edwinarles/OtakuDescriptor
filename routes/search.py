@@ -22,17 +22,17 @@ def search_semantic():
         session_data = f"{request.remote_addr}:{request.headers.get('User-Agent', '')}"
         session_id = hashlib.sha256(session_data.encode()).hexdigest()
         
-        # Count anonymous searches in the last hour (changed from permanent)
-        one_hour_ago = datetime.now() - timedelta(hours=1)
+        # Count anonymous searches in the last day
+        one_day_ago = datetime.now() - timedelta(days=1)
         anonymous_count = db.db.anonymous_searches.count_documents({
             'session_id': session_id,
-            'timestamp': {'$gt': one_hour_ago}
+            'timestamp': {'$gt': one_day_ago}
         })
         
         if anonymous_count >= 10:
             return jsonify({
                 'error': 'Anonymous limit reached',
-                'message': 'You have used your 10 free searches this hour. Register to get more or wait for the hourly refresh.',
+                'message': 'You have used your 10 free searches today. Register to get more or wait for the daily refresh.',
                 'limit': 10,
                 'used': anonymous_count,
                 'is_anonymous': True,
@@ -54,17 +54,17 @@ def search_semantic():
             session_data = f"{request.remote_addr}:{request.headers.get('User-Agent', '')}"
             session_id = hashlib.sha256(session_data.encode()).hexdigest()
             
-            # Count anonymous searches in the last hour
-            one_hour_ago = datetime.now() - timedelta(hours=1)
+            # Count anonymous searches in the last day
+            one_day_ago = datetime.now() - timedelta(days=1)
             anonymous_count = db.db.anonymous_searches.count_documents({
                 'session_id': session_id,
-                'timestamp': {'$gt': one_hour_ago}
+                'timestamp': {'$gt': one_day_ago}
             })
             
             if anonymous_count >= 10:
                 return jsonify({
                     'error': 'Anonymous limit reached',
-                    'message': 'Your API key is invalid. You have used your 10 free searches this hour. Register to get a new API key.',
+                    'message': 'Your API key is invalid. You have used your 10 free searches today. Register to get a new API key.',
                     'limit': 10,
                     'used': anonymous_count,
                     'is_anonymous': True,
@@ -80,12 +80,17 @@ def search_semantic():
         else:
             # Valid API key - normal limits logic
             is_premium = user.get('is_premium', False)
-            limit = Config.PREMIUM_HOURLY_LIMIT if is_premium else Config.FREE_HOURLY_LIMIT
+            limit = Config.PREMIUM_HOURLY_LIMIT if is_premium else Config.FREE_DAILY_LIMIT
             
-            one_hour_ago = datetime.now() - timedelta(hours=1)
+            # Premium users: hourly reset, Free users: daily reset
+            if is_premium:
+                time_ago = datetime.now() - timedelta(hours=1)
+            else:
+                time_ago = datetime.now() - timedelta(days=1)
+            
             count = db.db.searches.count_documents({
                 'api_key': api_key,
-                'timestamp': {'$gt': one_hour_ago}
+                'timestamp': {'$gt': time_ago}
             })
             
             if count >= limit:
@@ -99,7 +104,11 @@ def search_semantic():
     top_k = data.get('top_k', 10)
     
     # Process
-    if len(query) > 155: return jsonify({'error': 'Query too long'}), 400
+    MAX_QUERY_LENGTH = 250
+    if len(query) > MAX_QUERY_LENGTH:
+        return jsonify({
+            'error': f'Query too long. Maximum {MAX_QUERY_LENGTH} characters allowed.'
+        }), 400
     
     # Log search
     if is_anonymous:
@@ -132,16 +141,22 @@ def search_semantic():
         
         # Recalculate count after logging to get accurate remaining searches
         if is_anonymous:
-            one_hour_ago = datetime.now() - timedelta(hours=1)
+            one_day_ago = datetime.now() - timedelta(days=1)
             count = db.db.anonymous_searches.count_documents({
                 'session_id': search_key,
-                'timestamp': {'$gt': one_hour_ago}
+                'timestamp': {'$gt': one_day_ago}
             })
             print(f"📊 ANONYMOUS COUNT AFTER SEARCH: {count}/{limit}")
         else:
+            # Recalculate with same time period logic
+            if is_premium:
+                time_ago = datetime.now() - timedelta(hours=1)
+            else:
+                time_ago = datetime.now() - timedelta(days=1)
+            
             count = db.db.searches.count_documents({
                 'api_key': search_key,
-                'timestamp': {'$gt': one_hour_ago}
+                'timestamp': {'$gt': time_ago}
             })
         
         return jsonify({

@@ -299,16 +299,19 @@ def auth_status():
             db.db.users.update_one({'_id': user['_id']}, {'$set': {'is_premium': False}})
             is_premium = False
             
-    # Count searches in the last hour
-    one_hour_ago = datetime.now() - timedelta(hours=1)
-    # Assuming searches collection has 'user_id' referencing user._id or api_key
-    # Using API Key for simplicity in search logging
+    # Premium users: hourly reset, Free users: daily reset
+    if is_premium:
+        time_ago = datetime.now() - timedelta(hours=1)
+        limit = Config.PREMIUM_HOURLY_LIMIT
+    else:
+        time_ago = datetime.now() - timedelta(days=1)
+        limit = Config.FREE_DAILY_LIMIT
+    
+    # Count searches in the appropriate time period
     count = db.db.searches.count_documents({
         'api_key': api_key,
-        'timestamp': {'$gt': one_hour_ago}
+        'timestamp': {'$gt': time_ago}
     })
-    
-    limit = Config.PREMIUM_HOURLY_LIMIT if is_premium else Config.FREE_HOURLY_LIMIT
     
     return jsonify({
         'is_premium': is_premium,
@@ -327,11 +330,11 @@ def anonymous_status():
     session_data = f"{request.remote_addr}:{request.headers.get('User-Agent', '')}"
     session_id = hashlib.sha256(session_data.encode()).hexdigest()
     
-    # Count anonymous searches in the last hour
-    one_hour_ago = datetime.now() - timedelta(hours=1)
+    # Count anonymous searches in the last day
+    one_day_ago = datetime.now() - timedelta(days=1)
     count = db.db.anonymous_searches.count_documents({
         'session_id': session_id,
-        'timestamp': {'$gt': one_hour_ago}
+        'timestamp': {'$gt': one_day_ago}
     })
     
     limit = 10  # Anonymous limit

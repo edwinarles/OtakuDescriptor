@@ -264,7 +264,7 @@ class AnimeSearchAPI {
                             <h3>💎 ¡Obtén Premium!</h3>
                             <p class="info-text">Para comprar Premium, primero necesitas crear una cuenta.</p>
                             <ul>
-                                <li>✅ 1,000 búsquedas diarias</li>
+                                <li>✅ 200 búsquedas por hora</li>
                                 <li>✅ Acceso prioritario</li>
                                 <li>✅ Sin anuncios</li>
                                 <li>✅ Soporte premium</li>
@@ -278,7 +278,7 @@ class AnimeSearchAPI {
                         <div class="upgrade-offer">
                             <h3>💎 Actualiza a Premium</h3>
                             <ul>
-                                <li>✅ 1,000 búsquedas diarias</li>
+                                <li>✅ 200 búsquedas por hora</li>
                                 <li>✅ Acceso prioritario</li>
                                 <li>✅ Sin anuncios</li>
                                 <li>✅ Soporte premium</li>
@@ -289,7 +289,7 @@ class AnimeSearchAPI {
                             </button>
                         </div>
                     ` : `
-                        <p>Has alcanzado tu límite premium. Vuelve mañana para continuar.</p>
+                        <p>Has alcanzado tu límite premium por hora. Tu límite se renovará pronto.</p>
                     `}
                     
                     <button id="close-modal-btn" class="btn-secondary">Cerrar</button>
@@ -385,7 +385,7 @@ class SearchUIManager {
             <div class="message-content">
                 <div class="success-icon">✓</div>
                 <h3>Payment successful!</h3>
-                <p>You now have Premium access with 1,000 daily searches</p>
+                <p>You now have Premium access with 200 searches per hour</p>
                 <button onclick="this.parentElement.parentElement.remove()">Continue</button>
             </div>
         `;
@@ -502,7 +502,7 @@ class SearchUIManager {
                 } else {
                     countSpan.innerHTML = `
                         🎁 <strong>Free Mode</strong> - 
-                        10 searches per hour
+                        10 searches per day
                     `;
                     upgradeBtn.style.display = 'none';
                     statusContainer.classList.remove('low-searches');
@@ -517,13 +517,13 @@ class SearchUIManager {
             if (status.is_premium) {
                 countSpan.innerHTML = `
                     💎 <strong>Premium</strong> - 
-                    Searches: <strong>${status.remaining}</strong>/${status.hourly_limit}
+                    Searches: <strong>${status.remaining}</strong>/${status.hourly_limit} per hour
                 `;
                 upgradeBtn.style.display = 'none';
                 statusContainer.classList.remove('low-searches');
             } else {
                 countSpan.innerHTML = `
-                    Remaining searches: <strong>${status.remaining}</strong>/${status.hourly_limit}
+                    Remaining searches: <strong>${status.remaining}</strong>/${status.hourly_limit} per day
                 `;
 
                 if (status.remaining <= 3) {

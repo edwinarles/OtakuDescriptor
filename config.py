@@ -40,6 +40,10 @@ class Config:
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
-    # Search Limits (per hour)
-    FREE_HOURLY_LIMIT = 10
-    PREMIUM_HOURLY_LIMIT = 200
+    # Search Limits (per day)
+    FREE_DAILY_LIMIT = 10
+    PREMIUM_DAILY_LIMIT = 200
+    
+    # Legacy names for backward compatibility
+    FREE_HOURLY_LIMIT = FREE_DAILY_LIMIT
+    PREMIUM_HOURLY_LIMIT = PREMIUM_DAILY_LIMIT

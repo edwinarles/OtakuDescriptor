@@ -72,6 +72,12 @@ def payment_success():
 def payment_cancel():
     return send_from_directory(app.static_folder, 'index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    """Return empty response for favicon to prevent 404 errors"""
+    from flask import Response
+    return Response(status=204)
+
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory(app.static_folder, path)

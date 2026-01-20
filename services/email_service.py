@@ -1,30 +1,23 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Email, To, Content
 from config import Config
 
 def send_login_email(email, api_key, host_url):
-    """Send an email with the magic link/API key"""
-    if not Config.SMTP_USERNAME or not Config.SMTP_PASSWORD:
-        print("⚠️ SMTP not configured. Cannot send email.")
-        print(f"   SMTP_USERNAME: {'SET' if Config.SMTP_USERNAME else 'NOT SET'}")
-        print(f"   SMTP_PASSWORD: {'SET' if Config.SMTP_PASSWORD else 'NOT SET'}")
+    """Send an email with the magic link/API key using SendGrid"""
+    if not Config.SENDGRID_API_KEY:
+        print("⚠️ SendGrid API Key not configured. Cannot send email.")
+        print(f"   SENDGRID_API_KEY: {'SET' if Config.SENDGRID_API_KEY else 'NOT SET'}")
         return False
     
     try:
         print(f"📧 Attempting to send login email to: {email}")
-        print(f"   SMTP Server: {Config.SMTP_SERVER}:{Config.SMTP_PORT}")
+        print(f"   Using SendGrid API")
         print(f"   From: {Config.EMAIL_FROM}")
-        
-        msg = MIMEMultipart()
-        msg['From'] = Config.EMAIL_FROM
-        msg['To'] = email
-        msg['Subject'] = "Your OtakuDescriptor Access"
         
         base_url = host_url.rstrip('/')
         magic_link = f"{base_url}/?api_key={api_key}"
         
-        html = f"""
+        html_content = f"""
         <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                 <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
@@ -41,60 +34,45 @@ def send_login_email(email, api_key, host_url):
         </html>
         """
         
-        msg.attach(MIMEText(html, 'html'))
+        message = Mail(
+            from_email=Email(Config.EMAIL_FROM),
+            to_emails=To(email),
+            subject="Your OtakuDescriptor Access",
+            html_content=Content("text/html", html_content)
+        )
         
-        print("   Connecting to SMTP server...")
-        # CRITICAL: Add timeout to prevent Gunicorn from killing worker
-        server = smtplib.SMTP(Config.SMTP_SERVER, Config.SMTP_PORT, timeout=10)
-        print("   Starting TLS...")
-        server.starttls()
-        print("   Authenticating...")
-        server.login(Config.SMTP_USERNAME, Config.SMTP_PASSWORD)
-        print("   Sending message...")
-        server.send_message(msg)
-        server.quit()
+        sg = SendGridAPIClient(Config.SENDGRID_API_KEY)
+        response = sg.send(message)
         
         print(f"✅ Login email sent successfully to {email}")
+        print(f"   SendGrid Response Status: {response.status_code}")
         return True
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"❌ SMTP Authentication failed: {e}")
-        print("   Check SMTP_USERNAME and SMTP_PASSWORD")
-        return False
-    except smtplib.SMTPException as e:
-        print(f"❌ SMTP Error: {type(e).__name__} - {e}")
-        return False
+        
     except Exception as e:
-        print(f"❌ Unexpected error sending email: {type(e).__name__} - {e}")
+        print(f"❌ Error sending login email: {type(e).__name__} - {e}")
         import traceback
         traceback.print_exc()
         return False
 
 def send_verification_email(email, verification_token, host_url):
-    """Send a verification email to confirm the account"""
-    if not Config.SMTP_USERNAME or not Config.SMTP_PASSWORD:
-        print("⚠️ SMTP not configured. Cannot send verification email.")
-        print(f"   SMTP_USERNAME: {'SET' if Config.SMTP_USERNAME else 'NOT SET'}")
-        print(f"   SMTP_PASSWORD: {'SET' if Config.SMTP_PASSWORD else 'NOT SET'}")
+    """Send a verification email to confirm the account using SendGrid"""
+    if not Config.SENDGRID_API_KEY:
+        print("⚠️ SendGrid API Key not configured. Cannot send verification email.")
+        print(f"   SENDGRID_API_KEY: {'SET' if Config.SENDGRID_API_KEY else 'NOT SET'}")
         return False
     
     try:
         print(f"📧 Attempting to send verification email to: {email}")
-        print(f"   SMTP Server: {Config.SMTP_SERVER}:{Config.SMTP_PORT}")
+        print(f"   Using SendGrid API")
         print(f"   From: {Config.EMAIL_FROM}")
         print(f"   Host URL: {host_url}")
         
-        msg = MIMEMultipart()
-        msg['From'] = Config.EMAIL_FROM
-        msg['To'] = email
-        msg['Subject'] = "Confirm Your OtakuDescriptor Account"
-        
         base_url = host_url.rstrip('/')
-        # CORRECTION: Add /api/auth to the path
         verification_link = f"{base_url}/api/auth/verify-email?token={verification_token}"
         
         print(f"   Verification link: {verification_link}")
         
-        html = f"""
+        html_content = f"""
         <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                 <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
@@ -112,71 +90,68 @@ def send_verification_email(email, verification_token, host_url):
         </html>
         """
         
-        msg.attach(MIMEText(html, 'html'))
+        message = Mail(
+            from_email=Email(Config.EMAIL_FROM),
+            to_emails=To(email),
+            subject="Confirm Your OtakuDescriptor Account",
+            html_content=Content("text/html", html_content)
+        )
         
-        print("   Connecting to SMTP server...")
-        # CRITICAL: Add timeout to prevent Gunicorn from killing worker
-        server = smtplib.SMTP(Config.SMTP_SERVER, Config.SMTP_PORT, timeout=10)
-        print("   Starting TLS...")
-        server.starttls()
-        print("   Authenticating...")
-        server.login(Config.SMTP_USERNAME, Config.SMTP_PASSWORD)
-        print("   Sending message...")
-        server.send_message(msg)
-        server.quit()
+        sg = SendGridAPIClient(Config.SENDGRID_API_KEY)
+        response = sg.send(message)
         
         print(f"✅ Verification email sent successfully to {email}")
+        print(f"   SendGrid Response Status: {response.status_code}")
         return True
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"❌ SMTP Authentication failed: {e}")
-        print("   Check your SMTP_USERNAME and SMTP_PASSWORD in Render environment variables")
-        print("   For Gmail: use App Password, not regular password")
-        return False
-    except smtplib.SMTPException as e:
-        print(f"❌ SMTP Error: {type(e).__name__} - {e}")
-        return False
-    except TimeoutError as e:
-        print(f"❌ SMTP Connection timeout: {e}")
-        print("   The SMTP server took too long to respond")
-        print("   This might be a firewall/network issue on Render")
-        return False
-    except OSError as e:
-        print(f"❌ Network/Socket error: {e}")
-        print("   Cannot connect to SMTP server - possible firewall block")
-        return False
+        
     except Exception as e:
-        print(f"❌ Unexpected error sending verification email: {type(e).__name__} - {e}")
+        print(f"❌ Error sending verification email: {type(e).__name__} - {e}")
         import traceback
         traceback.print_exc()
         return False
 
 def send_reset_password_email(email, token, host_url):
-    """Send password recovery email"""
-    if not Config.SMTP_USERNAME: return False
+    """Send password recovery email using SendGrid"""
+    if not Config.SENDGRID_API_KEY:
+        print("⚠️ SendGrid API Key not configured. Cannot send reset password email.")
+        return False
     
     try:
-        msg = MIMEMultipart()
-        msg['From'] = Config.EMAIL_FROM
-        msg['To'] = email
-        msg['Subject'] = "Password Recovery - OtakuDescriptor"
+        print(f"📧 Attempting to send password reset email to: {email}")
         
-        # NOTE: In the frontend you'll need to implement a page that captures this token
-        # For now we assume a theoretical url /reset-password.html?token=...
         reset_link = f"{host_url.rstrip('/')}/reset-password.html?token={token}"
         
-        html = f"""
-        <p>You have requested to reset your password.</p>
-        <p><a href="{reset_link}">Click here to create a new password</a></p>
-        <p>If this wasn't you, please ignore this message.</p>
+        html_content = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                    <h2 style="color: #FF6B6B;">Password Recovery - OtakuDescriptor</h2>
+                    <p>You have requested to reset your password.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{reset_link}" style="background-color: #FF6B6B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Create New Password</a>
+                    </div>
+                    <p style="font-size: 0.9em; color: #888; margin-top: 30px;">If this wasn't you, please ignore this message.</p>
+                </div>
+            </body>
+        </html>
         """
         
-        msg.attach(MIMEText(html, 'html'))
-        server = smtplib.SMTP(Config.SMTP_SERVER, Config.SMTP_PORT, timeout=10)
-        server.starttls()
-        server.login(Config.SMTP_USERNAME, Config.SMTP_PASSWORD)
-        server.send_message(msg)
-        server.quit()
+        message = Mail(
+            from_email=Email(Config.EMAIL_FROM),
+            to_emails=To(email),
+            subject="Password Recovery - OtakuDescriptor",
+            html_content=Content("text/html", html_content)
+        )
+        
+        sg = SendGridAPIClient(Config.SENDGRID_API_KEY)
+        response = sg.send(message)
+        
+        print(f"✅ Password reset email sent successfully to {email}")
+        print(f"   SendGrid Response Status: {response.status_code}")
         return True
+        
     except Exception as e:
-        print(f"❌ Error sending reset password email: {e}")
+        print(f"❌ Error sending reset password email: {type(e).__name__} - {e}")
+        import traceback
+        traceback.print_exc()
         return False

@@ -29,12 +29,9 @@ class Config:
     PAYPAL_API = "https://api-m.sandbox.paypal.com" if PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
     PREMIUM_PRICE = os.environ.get("PREMIUM_PRICE", "3.00")
     
-    # Email (SMTP)
-    SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
-    SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
-    SMTP_USERNAME = os.environ.get("SMTP_USERNAME")
-    SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
-    EMAIL_FROM = os.environ.get("EMAIL_FROM", SMTP_USERNAME)
+    # Email (SendGrid API)
+    SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+    EMAIL_FROM = os.environ.get("EMAIL_FROM", "otakudescriptor@gmail.com")
     
     # Google OAuth
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")

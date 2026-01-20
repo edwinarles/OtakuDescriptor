@@ -190,8 +190,8 @@ def register_password():
                 print("=" * 50 + "\n")
                 return jsonify({
                     'error': 'Failed to send verification email',
-                    'details': 'SMTP service not available. Please check your SMTP configuration or try again later.',
-                    'smtp_error': True
+                    'details': 'Email service not available. Please check your SendGrid API configuration or try again later.',
+                    'email_error': True
                 }), 500
         except Exception as email_err:
             print(f"❌ Email service error: {email_err}")
@@ -205,7 +205,7 @@ def register_password():
             return jsonify({
                 'error': 'Email service error',
                 'details': str(email_err),
-                'smtp_error': True
+                'email_error': True
             }), 500
     
     except Exception as e:

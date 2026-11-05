@@ -21,6 +21,12 @@ class Config:
     # OpenAI
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
     EMBEDDING_MODEL = "text-embedding-3-large"
+
+    # Cross-Encoder Re-Ranking
+    ENABLE_RERANKING = os.environ.get("ENABLE_RERANKING", "true").lower() in ("true", "1", "yes")
+    CROSS_ENCODER_MODEL = os.environ.get("CROSS_ENCODER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+    RERANK_CANDIDATES = int(os.environ.get("RERANK_CANDIDATES", 30))
+    CROSS_ENCODER_DEVICE = os.environ.get("CROSS_ENCODER_DEVICE", "cpu")
     
     # PayPal
     PAYPAL_CLIENT_ID = os.environ.get("PAYPAL_CLIENT_ID")

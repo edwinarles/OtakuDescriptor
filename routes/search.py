@@ -102,6 +102,8 @@ def search_semantic():
     data = request.get_json(force=True)
     query = data.get('query', '')
     top_k = data.get('top_k', 10)
+    rerank_requested = data.get('rerank', None)
+    rerank = getattr(Config, 'ENABLE_RERANKING', True) if rerank_requested is None else bool(rerank_requested)
     
     # Process
     MAX_QUERY_LENGTH = 250
@@ -137,7 +139,13 @@ def search_semantic():
         vector = resp.data[0].embedding
         
         # Use pure vector search (embeddings only)
-        results = SearchEngine.search(vector, top_k=top_k)
+        # Vector search + Cross-Encoder re-ranking
+        results = SearchEngine.search(
+            vector=vector,
+            top_k=top_k,
+            query_text=query,
+            rerank=rerank
+        )
         
         # Recalculate count after logging to get accurate remaining searches
         if is_anonymous:
@@ -164,7 +172,7 @@ def search_semantic():
             'searches_remaining': limit - count,
             'is_premium': is_premium,
             'is_anonymous': is_anonymous,
-            'search_mode': 'embeddings'  # Indicate vector search was used
+            'search_mode': 'vector + cross-encoder rerank' if any(r.get('reranked') for r in results) else 'embeddings'
         })
 
         

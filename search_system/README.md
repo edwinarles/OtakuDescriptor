@@ -1,6 +1,6 @@
 # Search System Package
 
-Este módulo contiene todo el sistema de búsqueda híbrida de anime.
+Este módulo contiene el sistema de búsqueda semántica de anime de OtakuDescriptor, incluyendo recuperación vectorial y re-ranking neuronal.
 
 ## 📁 Estructura
 
@@ -8,69 +8,42 @@ Este módulo contiene todo el sistema de búsqueda híbrida de anime.
 search_system/
 ├── __init__.py              # Exports del package
 ├── download_animes.py       # Descarga datos de AniList
-├── enrich_with_llm.py       # Enriquecimiento con GPT-4o-mini
+├── enrich_with_llm.py       # Enriquecimiento con GPT-4o-mini (vibe, lore, keywords)
 ├── generate_embeddings.py   # Generación de embeddings con OpenAI
-├── search_engine.py         # Motor de búsqueda vectorial (FAISS)
-└── hybrid_search.py         # Motor de búsqueda híbrida (Vector + BM25)
+└── search_engine.py         # Motor de búsqueda en dos etapas (FAISS + Cross-Encoder Re-Ranking)
 ```
 
-## 🚀 Pipeline de Datos
+## 🧠 Arquitectura de Búsqueda en 2 Etapas
 
-### 1. Descargar Animes
-```bash
-python -m search_system.download_animes
-```
-Descarga 1000 animes de AniList y los guarda en MongoDB.
+1. **Primera Etapa (Recuperación de Candidatos con Bi-Encoder / Similitud Coseno)**:
+   - Se convierte la consulta a vector usando `text-embedding-3-large`.
+   - Se busca en el índice FAISS (`IndexFlatIP`) para recuperar rápidamente los $K$ candidatos más cercanos (por defecto 30-50 candidatos) mediante similitud coseno.
+   
+2. **Segunda Etapa (Re-Ranking con Cross-Encoder)**:
+   - Los bi-encoders comprimen el texto completo a un vector único, lo cual pierde interacciones sutiles entre palabras clave, contexto y relaciones para los mejores puestos del top.
+   - El **Cross-Encoder** (`cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`) analiza la consulta y la descripción estructurada del anime (`Title`, `Genres`, `Keywords`, `Vibe`, `Lore`, `Synopsis`) simultáneamente con atención cruzada completa (*cross-attention*).
+   - Reordena los candidatos y produce un ranking mucho más preciso y contextual para el Top-K final.
 
-### 2. Enriquecer con LLM
-```bash
-python -m search_system.enrich_with_llm
+## ⚙️ Configuración (en `.env` o `config.py`)
 
-# Opciones:
-python -m search_system.enrich_with_llm --test-mode  # Solo 5 animes
-python -m search_system.enrich_with_llm --stats      # Ver estadísticas
-```
-Genera campos `world_lore`, `vibe_check` y `vibe_keywords` usando GPT-4o-mini.
+- `ENABLE_RERANKING`: Activa/desactiva el re-ranking con Cross-Encoder (`true` por defecto).
+- `CROSS_ENCODER_MODEL`: Modelo HuggingFace para re-ranking (por defecto `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` para soporte multilingüe español/inglés; también configurable a `cross-encoder/ms-marco-MiniLM-L-6-v2` para inglés).
+- `RERANK_CANDIDATES`: Número mínimo de candidatos recuperados en la primera etapa para alimentar al Cross-Encoder (por defecto `30`).
+- `CROSS_ENCODER_DEVICE`: Dispositivo de ejecución (`cpu` o `cuda`).
 
-### 3. Generar Embeddings
-```bash
-python -m search_system.generate_embeddings
-```
-Crea embeddings vectoriales y exporta `embeddings.npy`.
-
-## 🔍 Uso en la Aplicación
+## 🚀 Uso en la Aplicación
 
 ```python
-from search_system import SearchEngine, HybridSearchEngine
+from search_system import SearchEngine
 
-# Inicializar motores
+# 1. Cargar datos e inicializar FAISS y Cross-Encoder
 SearchEngine.load_data()
-HybridSearchEngine.initialize()
 
-# Búsqueda híbrida
-results = HybridSearchEngine.hybrid_search(
-    query_vector=embedding_vector,
-    query_text="tatakae",
+# 2. Búsqueda vectorial con Re-Ranking automático
+results = SearchEngine.search(
+    vector=query_vector,
     top_k=10,
-    auto_weights=True
+    query_text="un anime donde viajan en el tiempo para salvar a sus amigos",
+    rerank=True
 )
 ```
-
-## ⚙️ Componentes
-
-### SearchEngine
-Motor de búsqueda vectorial usando FAISS con similitud coseno.
-
-### HybridSearchEngine
-Combina búsqueda vectorial (FAISS) + búsqueda por keywords (BM25) usando Reciprocal Rank Fusion.
-
-**Ajuste automático de pesos:**
-- Query corta + meme/japonés → 70% BM25, 30% Vector
-- Query larga descriptiva → 60% Vector, 40% BM25
-- Query media → 50% / 50%
-
-### BM25Indexer
-Índice invertido para búsqueda por palabras clave con pesos especiales:
-- `vibe_keywords`: peso 3x
-- `vibe_check`: peso 2x
-- `main_title`: peso 2x

@@ -27,7 +27,7 @@ class SearchEngine:
                 {"id": 1} 
             ).sort("id", 1)
             
-            cls.ids = [doc['id'] for doc in cursor]
+            cls.ids = [doc['id'] for doc in cursor if 'id' in doc]
             
             if not cls.ids:
                 print("[INFO] No se encontraron animes con embeddings en MongoDB.")
@@ -141,6 +141,10 @@ Responde SOLAMENTE en formato JSON con la lista ordenada de IDs:
         if not cls.index or not cls.ids:
             return []
 
+        if db.db is None:
+            print("[AVISO] Base de datos no disponible durante SearchEngine.search")
+            return []
+
         # Determinar si se debe aplicar re-ranking
         enable_rerank = getattr(Config, 'ENABLE_RERANKING', True) if rerank is None else bool(rerank)
         should_rerank = bool(enable_rerank and query_text)
@@ -172,12 +176,15 @@ Responde SOLAMENTE en formato JSON con la lista ordenada de IDs:
             if idx < len(cls.ids):
                 anime_id = cls.ids[idx]
                 target_ids.append(anime_id)
-                # Score de coseno entre 0 y 100
                 score_map[anime_id] = float(similarity * 100)
 
         # Traer detalles de estos IDs desde MongoDB
-        cursor = db.db.animes.find({"id": {"$in": target_ids}})
-        fetched_animes = {anime['id']: anime for anime in cursor}
+        try:
+            cursor = db.db.animes.find({"id": {"$in": target_ids}})
+            fetched_animes = {anime['id']: anime for anime in cursor if 'id' in anime}
+        except Exception as e:
+            print(f"[AVISO] Error al consultar animes en MongoDB: {e}")
+            fetched_animes = {}
 
         candidates = []
         for anime_id in target_ids:
@@ -196,13 +203,15 @@ Responde SOLAMENTE en formato JSON con la lista ordenada de IDs:
                 candidates.append(anime)
 
         # Etapa 2: Re-ranking si aplica
-        if should_rerank:
+        if should_rerank and candidates:
             return cls.rerank_with_llm(query_text, candidates, top_k=int(top_k))
 
         return candidates[:int(top_k)]
 
     @classmethod
     def get_by_id(cls, anime_id):
+        if db.db is None:
+            return None
         try:
             query = {
                 "$or": [

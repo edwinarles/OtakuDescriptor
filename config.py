@@ -7,14 +7,11 @@ load_dotenv()
 class Config:
     # Application
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev_key_secret')
-    PORT = int(os.environ.get('PORT', 5000))
+    PORT = int(os.environ.get('PORT', 10000))
     ENV = os.environ.get('FLASK_ENV', 'production')
     ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*')  # For CORS
     
     # MongoDB Atlas
-    # MONGO_URI format for Atlas:
-    # mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<db_name>?retryWrites=true&w=majority
-    # Example: mongodb+srv://user:password123@cluster0.xxxxx.mongodb.net/AnimeDescriptor?retryWrites=true&w=majority
     MONGO_URI = os.environ.get('MONGO_URI', 'mongodb+srv://localhost:27017/AnimeDescriptor')
     DB_NAME = os.environ.get('DB_NAME', 'AnimeDescriptor')
     
@@ -22,11 +19,9 @@ class Config:
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
     EMBEDDING_MODEL = "text-embedding-3-large"
 
-    # Cross-Encoder Re-Ranking
+    # Cross-Encoder Re-Ranking (0MB RAM cloud-friendly via OpenAI LLM Cross-Attention)
     ENABLE_RERANKING = os.environ.get("ENABLE_RERANKING", "true").lower() in ("true", "1", "yes")
-    CROSS_ENCODER_MODEL = os.environ.get("CROSS_ENCODER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
-    RERANK_CANDIDATES = int(os.environ.get("RERANK_CANDIDATES", 30))
-    CROSS_ENCODER_DEVICE = os.environ.get("CROSS_ENCODER_DEVICE", "cpu")
+    RERANK_CANDIDATES = int(os.environ.get("RERANK_CANDIDATES", 15))
     
     # PayPal
     PAYPAL_CLIENT_ID = os.environ.get("PAYPAL_CLIENT_ID")

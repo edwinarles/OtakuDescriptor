@@ -10,7 +10,13 @@ from utils import normalizar_texto, limpiar_html
 from config import Config
 
 search_bp = Blueprint('search', __name__)
-client = OpenAI(api_key=Config.OPENAI_API_KEY)
+def get_openai_client():
+    if not Config.OPENAI_API_KEY:
+        return None
+    try:
+        return OpenAI(api_key=Config.OPENAI_API_KEY)
+    except Exception:
+        return None
 
 @search_bp.route('/search', methods=['POST'])
 def search_semantic():
@@ -132,6 +138,13 @@ def search_semantic():
     
     # Embedding
     try:
+        client = get_openai_client()
+        if not client:
+            return jsonify({
+                'error': 'OpenAI API key not configured',
+                'message': 'Por favor configura OPENAI_API_KEY en las variables de entorno de Render.'
+            }), 503
+
         resp = client.embeddings.create(
             model=Config.EMBEDDING_MODEL,
             input=normalizar_texto(query)

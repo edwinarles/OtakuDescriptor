@@ -1,6 +1,6 @@
 # Search System Package
 
-Este módulo contiene el sistema de búsqueda semántica de anime de OtakuDescriptor, incluyendo recuperación vectorial y re-ranking neuronal.
+Este módulo contiene el sistema de búsqueda semántica de anime de OtakuDescriptor, optimizado para despliegue en la nube (Render) con bajo consumo de memoria RAM (< 70 MiB).
 
 ## 📁 Estructura
 
@@ -10,40 +10,24 @@ search_system/
 ├── download_animes.py       # Descarga datos de AniList
 ├── enrich_with_llm.py       # Enriquecimiento con GPT-4o-mini (vibe, lore, keywords)
 ├── generate_embeddings.py   # Generación de embeddings con OpenAI
-└── search_engine.py         # Motor de búsqueda en dos etapas (FAISS + Cross-Encoder Re-Ranking)
+└── search_engine.py         # Motor de búsqueda en dos etapas (FAISS + LLM Cross-Encoder Re-Ranking)
 ```
 
-## 🧠 Arquitectura de Búsqueda en 2 Etapas
+## 🧠 Arquitectura de Búsqueda en 2 Etapas (Zero-RAM Overhead)
 
-1. **Primera Etapa (Recuperación de Candidatos con Bi-Encoder / Similitud Coseno)**:
+1. **Primera Etapa (Recuperación de Candidatos con FAISS)**:
    - Se convierte la consulta a vector usando `text-embedding-3-large`.
-   - Se busca en el índice FAISS (`IndexFlatIP`) para recuperar rápidamente los $K$ candidatos más cercanos (por defecto 30-50 candidatos) mediante similitud coseno.
+   - FAISS (`IndexFlatIP`) recupera en microsegundos los 15-20 candidatos más cercanos por similitud coseno.
    
-2. **Segunda Etapa (Re-Ranking con Cross-Encoder)**:
-   - Los bi-encoders comprimen el texto completo a un vector único, lo cual pierde interacciones sutiles entre palabras clave, contexto y relaciones para los mejores puestos del top.
-   - El **Cross-Encoder** (`cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`) analiza la consulta y la descripción estructurada del anime (`Title`, `Genres`, `Keywords`, `Vibe`, `Lore`, `Synopsis`) simultáneamente con atención cruzada completa (*cross-attention*).
-   - Reordena los candidatos y produce un ranking mucho más preciso y contextual para el Top-K final.
+2. **Segunda Etapa (Re-Ranking con Cross-Attention)**:
+   - La lista de candidatos se evalúa con atención cruzada mediante `gpt-4o-mini` (Cross-Encoder vía LLM).
+   - Analiza simultáneamente la consulta con el título, sinopsis, géneros y *vibe check* de cada anime.
+   - **Consumo de memoria en el servidor: 0 MiB** (evita el error `Out of memory (used over 512Mi)` en el plan gratuito de Render).
+   - Reordena los candidatos para que el Top-K final tenga la máxima precisión semántica.
 
-## ⚙️ Configuración (en `.env` o `config.py`)
+## ⚙️ Configuración (en `.env` o variables de Render)
 
-- `ENABLE_RERANKING`: Activa/desactiva el re-ranking con Cross-Encoder (`true` por defecto).
-- `CROSS_ENCODER_MODEL`: Modelo HuggingFace para re-ranking (por defecto `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` para soporte multilingüe español/inglés; también configurable a `cross-encoder/ms-marco-MiniLM-L-6-v2` para inglés).
-- `RERANK_CANDIDATES`: Número mínimo de candidatos recuperados en la primera etapa para alimentar al Cross-Encoder (por defecto `30`).
-- `CROSS_ENCODER_DEVICE`: Dispositivo de ejecución (`cpu` o `cuda`).
-
-## 🚀 Uso en la Aplicación
-
-```python
-from search_system import SearchEngine
-
-# 1. Cargar datos e inicializar FAISS y Cross-Encoder
-SearchEngine.load_data()
-
-# 2. Búsqueda vectorial con Re-Ranking automático
-results = SearchEngine.search(
-    vector=query_vector,
-    top_k=10,
-    query_text="un anime donde viajan en el tiempo para salvar a sus amigos",
-    rerank=True
-)
-```
+- `PORT`: Puerto de escucha del servicio (Render inyecta `10000`).
+- `ENABLE_RERANKING`: Activa/desactiva el re-ranking (`true` por defecto).
+- `RERANK_CANDIDATES`: Cantidad de candidatos de la primera etapa enviados a re-ranking (por defecto `15`).
+- `OPENAI_API_KEY`: Clave de API de OpenAI para embeddings y re-ranking.

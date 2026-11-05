@@ -1,16 +1,21 @@
-# Gunicorn configuration file for Render deployment
+# Gunicorn configuration file optimized for cloud deployment (Render)
 import os
 
 # Server socket
-bind = f"0.0.0.0:{os.environ.get('PORT', '5000')}"
+# Render automatically injects the PORT environment variable (default: 10000)
+port = os.environ.get('PORT', '10000')
+bind = f"0.0.0.0:{port}"
 
-# Worker processes
-workers = 2
-worker_class = 'sync'
+# Worker processes:
+# On Render free tier (512MB RAM), multiple worker processes duplicate memory and trigger OOM.
+# Using 1 worker with threads (gthread) handles concurrent requests within ~60MB RAM.
+workers = int(os.environ.get('WEB_CONCURRENCY', 1))
+threads = int(os.environ.get('GUNICORN_THREADS', 4))
+worker_class = 'gthread'
 
-# Timeouts (INCREASED to handle SMTP delays)
-timeout = 120  # Increased from default 30s to 120s
-graceful_timeout = 120
+# Timeouts
+timeout = 120
+graceful_timeout = 30
 keepalive = 5
 
 # Logging
@@ -20,14 +25,7 @@ loglevel = 'info'
 
 # Process naming
 proc_name = 'otakudescriptor'
-
-# Server mechanics
 daemon = False
-pidfile = None
-umask = 0
-user = None
-group = None
-tmp_upload_dir = None
 
-# Preload app for faster worker spawn
-preload_app = True
+# Avoid preloading in low memory environments so port binds immediately
+preload_app = False

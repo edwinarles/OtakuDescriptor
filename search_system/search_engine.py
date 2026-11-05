@@ -1,18 +1,5 @@
 import os
 import json
-
-# Prevenir conflicto de OpenMP y DLLs entre PyTorch, pyarrow y FAISS en Windows
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
-
-# Importar pyarrow y sentence_transformers antes de FAISS para compatibilidad de memoria C en Windows
-try:
-    import pyarrow
-    from sentence_transformers import CrossEncoder
-except Exception:
-    CrossEncoder = None
-
 import numpy as np
 import faiss
 from config import Config
@@ -23,46 +10,17 @@ class SearchEngine:
     ids = []  # Lista de IDs que corresponde índice por índice con FAISS
     index = None
     dim = 0
-    cross_encoder = None
-    cross_encoder_loaded = False
-
-    @classmethod
-    def load_cross_encoder(cls):
-        """Inicializa el modelo Cross-Encoder para re-ranking semantico de alta precision"""
-        if cls.cross_encoder_loaded:
-            return cls.cross_encoder
-
-        enable_reranking = getattr(Config, 'ENABLE_RERANKING', True)
-        if not enable_reranking:
-            print("[INFO] Re-ranking con Cross-Encoder desactivado en configuracion.")
-            cls.cross_encoder_loaded = True
-            return None
-
-        model_name = getattr(Config, 'CROSS_ENCODER_MODEL', 'cross-encoder/ms-marco-MiniLM-L-6-v2')
-        device = getattr(Config, 'CROSS_ENCODER_DEVICE', 'cpu')
-
-        print(f"Cargando modelo Cross-Encoder '{model_name}' en {device}...")
-        try:
-            if CrossEncoder is None:
-                from sentence_transformers import CrossEncoder as CE
-                cls.cross_encoder = CE(model_name, device=device)
-            else:
-                cls.cross_encoder = CrossEncoder(model_name, device=device)
-            cls.cross_encoder_loaded = True
-            print(f"[OK] Cross-Encoder '{model_name}' listo para re-ranking.")
-            return cls.cross_encoder
-        except Exception as e:
-            print(f"[AVISO] No se pudo cargar Cross-Encoder ({e}). Se continuara con similitud coseno.")
-            cls.cross_encoder = None
-            cls.cross_encoder_loaded = True
-            return None
 
     @classmethod
     def load_data(cls):
-        print("Inicializando motor de busqueda (conectado a MongoDB)...")
+        print("[INFO] Inicializando motor de busqueda...")
         try:
             Database.init_db()
             
+            if db.db is None:
+                print("[AVISO] Base de datos no disponible todavia. FAISS se inicializara cuando este lista.")
+                return
+
             # 1. Cargar SOLO los IDs de los animes que tienen embeddings
             cursor = db.db.animes.find(
                 {"embedding": {"$exists": True}},
@@ -72,12 +30,12 @@ class SearchEngine:
             cls.ids = [doc['id'] for doc in cursor]
             
             if not cls.ids:
-                print("! No se encontraron animes con embeddings en MongoDB.")
+                print("[INFO] No se encontraron animes con embeddings en MongoDB.")
                 return
 
             # 2. Cargar embeddings (FAISS)
             if not os.path.exists("embeddings.npy"):
-                print("ERROR: 'embeddings.npy' no existe. Ejecuta generate_embeddings.py primero.")
+                print("[AVISO] 'embeddings.npy' no existe. Ejecuta generate_embeddings.py.")
                 return
 
             embeddings = np.load("embeddings.npy")
@@ -90,106 +48,93 @@ class SearchEngine:
             
             # Verificación de consistencia
             if len(cls.ids) != embeddings.shape[0]:
-                print(f"! ADVERTENCIA: Discrepancia entre IDs en DB ({len(cls.ids)}) y embeddings ({embeddings.shape[0]}).")
+                print(f"[AVISO] Discrepancia entre IDs en DB ({len(cls.ids)}) y embeddings ({embeddings.shape[0]}).")
                 min_len = min(len(cls.ids), embeddings.shape[0])
                 cls.ids = cls.ids[:min_len]
                 embeddings = embeddings[:min_len]
             
-            # Crear índice FAISS con INNER PRODUCT (similitud coseno con vectores normalizados)
-            print("Creando indice FAISS con similitud coseno...")
-            cls.index = faiss.IndexFlatIP(cls.dim)  # IP = Inner Product
+            # Crear índice FAISS con INNER PRODUCT (similitud coseno)
+            cls.index = faiss.IndexFlatIP(cls.dim)
             cls.index.add(embeddings.astype('float32'))
-            print(f"[OK] Motor de busqueda listo. Indice contiene {len(cls.ids)} vectores usando cosine similarity.")
-
-            # 3. Precargar el Cross-Encoder para que las búsquedas no tengan latencia de arranque en frío
-            cls.load_cross_encoder()
+            print(f"[OK] Motor de busqueda listo. Indice contiene {len(cls.ids)} vectores usando similitud coseno.")
             
         except Exception as e:
-            print(f"X Error cargando motor de busqueda: {e}")
+            print(f"[AVISO] Error cargando motor de busqueda: {e}")
 
     @classmethod
-    def build_anime_text_for_rerank(cls, anime):
+    def rerank_with_llm(cls, query_text, candidates, top_k):
         """
-        Construye una representación textual enriquecida del anime para alimentar el Cross-Encoder.
-        Prioriza título, géneros, keywords culturales/memes, vibe check, world lore y sinopsis.
+        Re-ranking semantico de alta precision usando Cross-Attention via LLM (gpt-4o-mini).
+        Consumo de memoria RAM en el servidor: 0 MiB (ideal para el plan de 512MB de Render).
         """
-        parts = []
-
-        title = anime.get('main_title') or anime.get('title') or ''
-        if title:
-            parts.append(f"Title: {title}")
-
-        genres = anime.get('genres')
-        if isinstance(genres, list) and genres:
-            parts.append(f"Genres: {', '.join(str(g) for g in genres[:6])}")
-
-        keywords = anime.get('vibe_keywords')
-        if isinstance(keywords, list) and keywords:
-            parts.append(f"Keywords: {', '.join(str(k) for k in keywords[:8])}")
-        elif isinstance(keywords, str) and keywords:
-            parts.append(f"Keywords: {keywords}")
-
-        vibe = anime.get('vibe_check')
-        if vibe:
-            parts.append(f"Vibe: {vibe}")
-
-        lore = anime.get('world_lore')
-        if lore:
-            parts.append(f"Lore: {lore}")
-
-        enhanced = anime.get('enhanced_description')
-        if enhanced:
-            parts.append(f"Synopsis: {enhanced[:600]}")
-        else:
-            desc = anime.get('description_clean') or anime.get('description') or ''
-            clean_desc = limpiar_html(desc)
-            if clean_desc:
-                parts.append(f"Synopsis: {clean_desc[:600]}")
-
-        return " | ".join(parts) if parts else (title or "Anime")
-
-    @classmethod
-    def rerank_candidates(cls, query_text, candidates, top_k):
-        """
-        Aplica re-ranking usando el Cross-Encoder a los candidatos recuperados por similitud coseno.
-        """
-        if not candidates:
-            return []
-
-        # Asegurar que el Cross-Encoder esté inicializado
-        encoder = cls.load_cross_encoder()
-        if encoder is None:
-            # Fallback a ranking por similitud coseno
-            for anime in candidates:
-                anime['similarity_score'] = anime.get('cosine_score', 0.0)
-                anime['reranked'] = False
+        if not candidates or not Config.OPENAI_API_KEY:
+            for a in candidates:
+                a['reranked'] = False
             return candidates[:top_k]
 
         try:
-            # Preparar pares (query, documento)
-            pairs = [(query_text, cls.build_anime_text_for_rerank(anime)) for anime in candidates]
+            from openai import OpenAI
+            client = OpenAI(api_key=Config.OPENAI_API_KEY)
             
-            # Predicción con el Cross-Encoder
-            raw_scores = encoder.predict(pairs)
+            # Limitar a los mejores 15 candidatos para respuesta rapida y economica
+            pool = candidates[:min(len(candidates), 15)]
+            
+            items_desc = []
+            for idx, a in enumerate(pool):
+                title = a.get('main_title') or a.get('title') or 'Sin titulo'
+                desc = (a.get('description_clean') or a.get('description') or '')[:160]
+                genres = ', '.join(str(g) for g in a.get('genres', [])[:3])
+                vibe = a.get('vibe_check', '')
+                items_desc.append(f"[{idx+1}] ID: {a['id']} | Titulo: {title} | Generos: {genres} | Vibe: {vibe} | Sinopsis: {desc}")
 
-            for anime, raw_score in zip(candidates, raw_scores):
-                s = float(raw_score)
-                anime['cross_encoder_score'] = round(s, 4)
-                # Calibración del score a porcentaje 0-100 usando la función sigmoide
-                sigmoid_val = 1.0 / (1.0 + np.exp(-s))
-                anime['similarity_score'] = round(float(sigmoid_val * 100.0), 2)
-                anime['reranked'] = True
+            prompt = f"""Actua como un re-ranker semantico (Cross-Encoder) experto en anime.
+Consulta del usuario: "{query_text}"
 
-            # Ordenar candidatos de mayor a menor relevancia según el Cross-Encoder
-            candidates.sort(key=lambda a: a['cross_encoder_score'], reverse=True)
-            return candidates[:top_k]
+Candidatos recuperados:
+{chr(10).join(items_desc)}
 
+Ordena los candidatos de MAYOR a MENOR relevancia con respecto a la consulta del usuario.
+Responde SOLAMENTE en formato JSON con la lista ordenada de IDs:
+{{"ranked_ids": [<id1>, <id2>, ...]}}"""
+
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Responde exclusivamente en formato JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0,
+                max_tokens=250,
+                response_format={"type": "json_object"}
+            )
+            
+            content = json.loads(response.choices[0].message.content)
+            ranked_ids = content.get("ranked_ids", [])
+            
+            if ranked_ids:
+                cand_map = {a['id']: a for a in pool}
+                reranked = []
+                for rank_idx, aid in enumerate(ranked_ids):
+                    if aid in cand_map:
+                        anime = cand_map[aid]
+                        anime['reranked'] = True
+                        anime['similarity_score'] = round(max(99.0 - (rank_idx * 3.5), 55.0), 2)
+                        reranked.append(anime)
+                        
+                # Agregar los que no hayan estado en ranked_ids manteniendo su orden
+                for a in pool:
+                    if a['id'] not in [r['id'] for r in reranked]:
+                        a['reranked'] = False
+                        reranked.append(a)
+                        
+                return reranked[:top_k]
+                
         except Exception as e:
-            print(f"[AVISO] Error durante el re-ranking con Cross-Encoder: {e}. Fallback a similitud coseno.")
-            for anime in candidates:
-                anime['similarity_score'] = anime.get('cosine_score', 0.0)
-                anime['reranked'] = False
-            return candidates[:top_k]
+            print(f"[AVISO] Fallo re-ranking LLM ({e}). Se mantiene orden por similitud coseno.")
+            
+        for a in candidates:
+            a['reranked'] = False
+        return candidates[:top_k]
 
     @classmethod
     def search(cls, vector, top_k=10, query_text=None, rerank=None):
@@ -200,10 +145,10 @@ class SearchEngine:
         enable_rerank = getattr(Config, 'ENABLE_RERANKING', True) if rerank is None else bool(rerank)
         should_rerank = bool(enable_rerank and query_text)
 
-        # Si se usa re-ranking, recuperamos un grupo más amplio de candidatos en la primera etapa
+        # Si se usa re-ranking, recuperamos un grupo mas amplio de candidatos en la primera etapa
         if should_rerank:
-            min_candidates = getattr(Config, 'RERANK_CANDIDATES', 30)
-            initial_k = max(int(top_k) * 3, min_candidates)
+            min_candidates = getattr(Config, 'RERANK_CANDIDATES', 15)
+            initial_k = max(int(top_k) * 2, min_candidates)
             search_k = max(1, min(initial_k, len(cls.ids)))
         else:
             search_k = max(1, min(int(top_k), len(cls.ids)))
@@ -250,9 +195,9 @@ class SearchEngine:
 
                 candidates.append(anime)
 
-        # Etapa 2: Re-ranking con Cross-Encoder si aplica
+        # Etapa 2: Re-ranking si aplica
         if should_rerank:
-            return cls.rerank_candidates(query_text, candidates, top_k=int(top_k))
+            return cls.rerank_with_llm(query_text, candidates, top_k=int(top_k))
 
         return candidates[:int(top_k)]
 
@@ -275,7 +220,6 @@ class SearchEngine:
                 anime['description_clean'] = limpiar_html(anime.get('description', ''))
                 return anime
         except Exception as e:
-            print(f"Error en get_by_id: {e}")
-            pass
+            print(f"[AVISO] Error en get_by_id: {e}")
 
         return None

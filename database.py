@@ -8,9 +8,7 @@ class Database:
     @classmethod
     def init_db(cls):
         if not cls.client:
-            print("Conectando a MongoDB Atlas...")
-            print(f"URI: {Config.MONGO_URI[:50]}...")
-            print(f"Base de datos: {Config.DB_NAME}")
+            print("[INFO] Conectando a MongoDB Atlas...")
             try:
                 # Conectar con timeout de 10 segundos
                 cls.client = MongoClient(
@@ -21,7 +19,7 @@ class Database:
                 
                 # Verificar conexión
                 cls.client.admin.command('ping')
-                print("✓ Ping exitoso a MongoDB Atlas")
+                print("[OK] Ping exitoso a MongoDB Atlas")
                 
                 cls.db = cls.client[Config.DB_NAME]
                 
@@ -29,10 +27,8 @@ class Database:
                 cls.db.users.create_index("email", unique=True, sparse=True)
                 cls.db.users.create_index("api_key", unique=True)
                 cls.db.users.create_index("google_id", unique=True, sparse=True)
-                print("✓ MongoDB conectado y configurado correctamente")
+                print("[OK] MongoDB conectado y configurado correctamente")
             except Exception as e:
-                print(f"X Error conectando a MongoDB: {e}")
-                print(f"X Tipo de error: {type(e).__name__}")
-                raise
+                print(f"[AVISO] No se pudo conectar inmediatamente a MongoDB ({e}). El servidor continuara iniciando.")
 
 db = Database

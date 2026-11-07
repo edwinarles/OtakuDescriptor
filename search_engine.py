@@ -76,26 +76,33 @@ class SearchEngine:
             from openai import OpenAI
             client = OpenAI(api_key=Config.OPENAI_API_KEY)
             
-            # Limitar a los mejores 15 candidatos para respuesta rapida y economica
-            pool = candidates[:min(len(candidates), 15)]
+            # Pool configurable (por defecto 30 candidatos para no perder animes en la primera etapa)
+            pool_size = getattr(Config, 'RERANK_CANDIDATES', 30)
+            pool = candidates[:min(len(candidates), pool_size)]
             
             items_desc = []
             for idx, a in enumerate(pool):
                 title = a.get('main_title') or a.get('title') or 'Sin titulo'
-                desc = (a.get('description_clean') or a.get('description') or '')[:160]
+                # Extraemos hasta 750 caracteres para preservar giros de trama y detalles clave
+                raw_desc = limpiar_html(a.get('description', ''))
+                desc = raw_desc[:750].strip()
                 genres = ', '.join(str(g) for g in a.get('genres', [])[:3])
                 vibe = a.get('vibe_check', '')
-                items_desc.append(f"[{idx+1}] ID: {a['id']} | Titulo: {title} | Generos: {genres} | Vibe: {vibe} | Sinopsis: {desc}")
+                items_desc.append(f"[{idx+1}] ID:{a['id']} | Titulo: {title} | Generos: {genres} | Vibe: {vibe}\nSinopsis: {desc}")
 
-            prompt = f"""Actua como un re-ranker semantico (Cross-Encoder) experto en anime.
-Consulta del usuario: "{query_text}"
+            prompt = f"""Actúa como un experto sistema de Re-ranking semántico (Cross-Encoder) para búsqueda de anime por descripción de trama.
+Consulta del usuario:
+"{query_text}"
 
-Candidatos recuperados:
+A continuación se presentan los candidatos recuperados por búsqueda vectorial.
+Analiza cuidadosamente la sinopsis de cada uno para identificar coincidencias narrativas específicas (elementos de trama, objetos clave, hechos o giros argumentales como comerse un dedo de un demonio, hechicería, maldiciones, etc.):
+
 {chr(10).join(items_desc)}
 
-Ordena los candidatos de MAYOR a MENOR relevancia con respecto a la consulta del usuario.
-Responde SOLAMENTE en formato JSON con la lista ordenada de IDs:
-{{"ranked_ids": [<id1>, <id2>, ...]}}"""
+Ordena los candidatos del más relevante al menos relevante con respecto a la consulta del usuario.
+Si algún anime coincide exactamente con la trama descrita, colócalo en el puesto #1.
+Responde ÚNICAMENTE en formato JSON con la lista ordenada de números de opción:
+{{"ranking": [<numero_opcion_1>, <numero_opcion_2>, ...]}}"""
 
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -104,30 +111,44 @@ Responde SOLAMENTE en formato JSON con la lista ordenada de IDs:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.0,
-                max_tokens=250,
+                max_tokens=350,
                 response_format={"type": "json_object"}
             )
             
             content = json.loads(response.choices[0].message.content)
-            ranked_ids = content.get("ranked_ids", [])
+            raw_list = content.get("ranking") or content.get("ranked_indices") or content.get("ranked_ids") or []
             
-            if ranked_ids:
-                cand_map = {a['id']: a for a in pool}
-                reranked = []
-                for rank_idx, aid in enumerate(ranked_ids):
-                    if aid in cand_map:
-                        anime = cand_map[aid]
-                        anime['reranked'] = True
-                        anime['similarity_score'] = round(max(99.0 - (rank_idx * 3.5), 55.0), 2)
-                        reranked.append(anime)
-                        
-                # Agregar los que no hayan estado en ranked_ids manteniendo su orden
-                for a in pool:
-                    if a['id'] not in [r['id'] for r in reranked]:
-                        a['reranked'] = False
-                        reranked.append(a)
-                        
-                return reranked[:top_k]
+            cand_by_id = {str(a['id']): a for a in pool}
+            reranked = []
+            seen_ids = set()
+
+            for rank_idx, item in enumerate(raw_list):
+                anime = None
+                # Si el LLM devolvió el número de opción (1 a len(pool))
+                if isinstance(item, int) and 1 <= item <= len(pool):
+                    candidate = pool[item - 1]
+                    if candidate['id'] not in seen_ids:
+                        anime = candidate
+                # Si el LLM devolvió el ID real de la base de datos
+                elif str(item) in cand_by_id:
+                    candidate = cand_by_id[str(item)]
+                    if candidate['id'] not in seen_ids:
+                        anime = candidate
+
+                if anime:
+                    anime['reranked'] = True
+                    anime['similarity_score'] = round(max(99.0 - (rank_idx * 2.5), 60.0), 2)
+                    reranked.append(anime)
+                    seen_ids.add(anime['id'])
+
+            # Agregar candidatos restantes de pool manteniendo orden
+            for a in pool:
+                if a['id'] not in seen_ids:
+                    a['reranked'] = False
+                    reranked.append(a)
+                    seen_ids.add(a['id'])
+
+            return reranked[:top_k]
                 
         except Exception as e:
             print(f"[AVISO] Fallo re-ranking LLM ({e}). Se mantiene orden por similitud coseno.")
@@ -151,7 +172,7 @@ Responde SOLAMENTE en formato JSON con la lista ordenada de IDs:
 
         # Si se usa re-ranking, recuperamos un grupo mas amplio de candidatos en la primera etapa
         if should_rerank:
-            min_candidates = getattr(Config, 'RERANK_CANDIDATES', 15)
+            min_candidates = getattr(Config, 'RERANK_CANDIDATES', 30)
             initial_k = max(int(top_k) * 2, min_candidates)
             search_k = max(1, min(initial_k, len(cls.ids)))
         else:

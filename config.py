@@ -21,7 +21,7 @@ class Config:
 
     # Cross-Encoder Re-Ranking (0MB RAM cloud-friendly via OpenAI LLM Cross-Attention)
     ENABLE_RERANKING = os.environ.get("ENABLE_RERANKING", "true").lower() in ("true", "1", "yes")
-    RERANK_CANDIDATES = int(os.environ.get("RERANK_CANDIDATES", 15))
+    RERANK_CANDIDATES = int(os.environ.get("RERANK_CANDIDATES", 30))
     
     # PayPal
     PAYPAL_CLIENT_ID = os.environ.get("PAYPAL_CLIENT_ID")

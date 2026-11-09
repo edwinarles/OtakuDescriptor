@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="HsZhG6rZ_JO-Nne16hsYNrnlFIhUVQF7hCmGT_6d-Og" />
     <meta name="google-site-verification" content="HsZhG6rZ_JO-Nne16hsYNrnlFIhUVQF7hCmGT_6d-Og" />
     <title>OtakuDescriptor</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5958120162111988"
@@ -13,37 +12,76 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="payment-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <!-- ✨ NEW: Search status bar (automatically created by JavaScript) -->
-    <!-- The script will add here: <div id="search-status-bar">...</div> -->
-
-    <div class="header">
+    <!-- Header -->
+    <header class="header">
         <div class="header-content">
             <div class="logo">
-                <span>OtakuDescriptor</span>
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="#7c3aed" stroke-width="2.5" fill="none"/>
+                    <circle cx="16" cy="16" r="8" fill="#7c3aed" opacity="0.15"/>
+                    <circle cx="16" cy="16" r="4" fill="#7c3aed"/>
+                </svg>
+                <span>Otaku Descriptor</span>
             </div>
-            <div class="auth-buttons">
-                <button id="loginBtn" class="login-btn" onclick="openLoginModal()">Login / Register</button>
-                <button id="logoutBtn" class="logout-btn" onclick="handleLogout()"
-                    style="display: none;">Logout</button>
-            </div>
+            <nav class="header-nav">
+                <div class="demo-badge">Demo v1.0</div>
+                <button id="loginBtn" class="login-btn" onclick="openLoginModal()">
+                    <i class="fas fa-user-circle"></i> Ingresar
+                </button>
+                <button id="logoutBtn" class="logout-btn" onclick="handleLogout()" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+                <button class="menu-btn" id="menuToggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
         </div>
-    </div>
+    </header>
 
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Decorative anime eyes illustration -->
+        <div class="hero-illustration">
+            <svg viewBox="0 0 400 120" class="anime-eyes-svg">
+                <!-- Left eye -->
+                <ellipse cx="130" cy="60" rx="55" ry="45" fill="none" stroke="#d1d5db" stroke-width="2"/>
+                <ellipse cx="130" cy="60" rx="55" ry="45" fill="none" stroke="#e5e7eb" stroke-width="1" opacity="0.5"/>
+                <circle cx="135" cy="58" r="22" fill="#1f2937" opacity="0.08"/>
+                <circle cx="135" cy="58" r="15" fill="#374151" opacity="0.12"/>
+                <circle cx="140" cy="52" r="6" fill="white" opacity="0.6"/>
+                <path d="M 75 35 Q 130 10 185 35" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Right eye -->
+                <ellipse cx="270" cy="60" rx="55" ry="45" fill="none" stroke="#d1d5db" stroke-width="2"/>
+                <ellipse cx="270" cy="60" rx="55" ry="45" fill="none" stroke="#e5e7eb" stroke-width="1" opacity="0.5"/>
+                <circle cx="265" cy="58" r="22" fill="#1f2937" opacity="0.08"/>
+                <circle cx="265" cy="58" r="15" fill="#374151" opacity="0.12"/>
+                <circle cx="260" cy="52" r="6" fill="white" opacity="0.6"/>
+                <path d="M 215 35 Q 270 10 325 35" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+        </div>
 
-    <div class="hero">
-        <h1>OtakuDescriptor</h1>
-        <p>Describe any anime in your own words and let AI find it</p>
+        <h1 class="hero-title">¿No recuerdas el nombre<br>de ese anime?</h1>
+        <p class="hero-subtitle">Describe cualquier anime con tus propias palabras y deja que la IA lo encuentre por ti</p>
 
+        <!-- Search Container -->
         <div class="search-container">
             <div class="search-box">
-                <input type="text" id="searchInput"
-                    placeholder="Try: A boy who dreams of becoming Hokage and never gives up...">
-                <button class="search-btn" onclick="buscar()">Search</button>
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput"
+                        placeholder="Ej: Chica que viaja en el tiempo y salta en el aire...">
+                </div>
+                <button class="search-btn" onclick="buscar()">Buscar</button>
+            </div>
+            <div class="search-actions">
                 <button class="tags-toggle-btn" onclick="toggleTagsPanel()">
-                    🏷️ Tags
+                    <i class="fas fa-tags"></i> Buscar por Tags
                 </button>
             </div>
         </div>
@@ -51,95 +89,120 @@
         <!-- Tags Panel -->
         <div id="tagsPanel" style="display: none;" class="tags-panel">
             <div class="tags-panel-header">
-                <h3>Search by Tags</h3>
-                <p>Select one or more tags to filter anime. Anime must have ALL selected tags.</p>
+                <h3>Buscar por Tags</h3>
+                <p>Selecciona uno o más tags para filtrar anime. El anime debe tener TODOS los tags seleccionados.</p>
             </div>
-
-            <!-- Selected tags -->
-            <div id="selectedTagsContainer" class="selected-tags-container" style="display: none;">
-                <!-- Dynamically filled -->
-            </div>
-
-            <!-- Available tags -->
+            <div id="selectedTagsContainer" class="selected-tags-container" style="display: none;"></div>
             <div class="tags-grid">
-                <h4>Available Tags:</h4>
-                <div id="tagsContainer" class="tags-container">
-                    <!-- Dynamically filled with tags -->
-                </div>
+                <h4>Tags Disponibles:</h4>
+                <div id="tagsContainer" class="tags-container"></div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="container">
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Filter Tabs -->
         <div class="filters" id="filters">
-            <button class="filter-btn active" onclick="cargarTendencias(this, 'all')">All</button>
-            <button class="filter-btn" onclick="cargarTendencias(this, 'trending')">Trending Now</button>
-            <button class="filter-btn" onclick="cargarTendencias(this, 'popular')">Most Popular</button>
-            <button class="filter-btn" onclick="cargarTendencias(this, 'top_rated')">Top Rated</button>
+            <button class="filter-btn active" onclick="cargarTendencias(this, 'all')">Todos</button>
+            <button class="filter-btn" onclick="cargarTendencias(this, 'trending')">En Tendencia</button>
+            <button class="filter-btn" onclick="cargarTendencias(this, 'popular')">Más Populares</button>
+            <button class="filter-btn" onclick="cargarTendencias(this, 'top_rated')">Mejor Calificados</button>
         </div>
 
+        <!-- Loading State -->
         <div id="loading" class="loading" style="display: none;">
-            <div class="loading-spinner"></div>
-            <p>Searching with AI...</p>
+            <div class="loading-animation">
+                <div class="loading-orb orb-1"></div>
+                <div class="loading-orb orb-2"></div>
+                <div class="loading-orb orb-3"></div>
+            </div>
+            <p class="loading-text">Buscando con IA...</p>
+            <p class="loading-subtext">Analizando descripciones y re-rankeando resultados</p>
         </div>
 
+        <!-- Search Results -->
         <div id="resultsSection" style="display: none;">
             <div class="section-header">
-                <h2 id="resultsTitle">Search Results</h2>
-                <span id="resultsCount" style="color: #888;"></span>
+                <h2 id="resultsTitle">Resultados de Búsqueda</h2>
+                <span id="resultsCount" class="results-count"></span>
             </div>
             <div id="results" class="anime-grid"></div>
         </div>
 
+        <!-- Trending Section -->
         <div id="trendingSection">
             <div id="trending" class="anime-grid"></div>
             <div id="pagination" class="pagination-container" style="display: none;"></div>
         </div>
 
+        <!-- Empty State -->
         <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-state-icon">🔍</div>
-            <h3>No results found</h3>
-            <p>Try adjusting your search or browse our collection</p>
+            <div class="empty-state-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3>No se encontraron resultados</h3>
+            <p>Intenta ajustar tu búsqueda o explora nuestra colección</p>
         </div>
-    </div>
+    </main>
+
+    <!-- Support Banner -->
+    <section class="support-banner">
+        <div class="support-card">
+            <div class="support-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="support-content">
+                <h3>Demo v1.0 — ¡Apóyanos!</h3>
+                <p>Este proyecto es gratuito y de código abierto. Si te gusta, considera apoyarnos para mantener los servidores activos y seguir mejorando la IA.</p>
+            </div>
+            <a href="https://buymeacoffee.com" target="_blank" rel="noopener" class="support-btn">
+                <i class="fas fa-coffee"></i> Invítanos un café
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>OtakuDescriptor &copy; 2026 — Hecho con <i class="fas fa-heart" style="color: #7c3aed;"></i> para la comunidad otaku</p>
+    </footer>
+
+    <!-- Login Modal -->
     <div id="loginModal" class="modal" style="display: none;">
         <div class="modal-content login-modal-content">
             <span class="close-modal" onclick="closeLoginModal()">&times;</span>
 
             <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
-                <button class="auth-tab" onclick="switchAuthTab('register')">Sign Up</button>
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Registrarse</button>
             </div>
 
-            <!-- Login Form -->
             <div id="loginForm" class="auth-form">
-                <h2>Welcome Back!</h2>
+                <h2>¡Bienvenido de nuevo!</h2>
                 <div class="input-group">
                     <input type="email" id="loginEmail" placeholder="Email" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="loginPassword" placeholder="Password" required>
+                    <input type="password" id="loginPassword" placeholder="Contraseña" required>
                 </div>
-                <button class="btn-primary" onclick="handlePasswordLogin()">Sign In</button>
+                <button class="btn-primary" onclick="handlePasswordLogin()">Iniciar Sesión</button>
             </div>
 
-            <!-- Register Form -->
             <div id="registerForm" class="auth-form" style="display: none;">
-                <h2>Create Account</h2>
+                <h2>Crear Cuenta</h2>
                 <div class="input-group">
                     <input type="email" id="regEmail" placeholder="Email" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="regPassword" placeholder="Password" required>
+                    <input type="password" id="regPassword" placeholder="Contraseña" required>
                 </div>
-                <button class="btn-primary" onclick="handlePasswordRegister()">Sign Up</button>
+                <button class="btn-primary" onclick="handlePasswordRegister()">Registrarse</button>
             </div>
 
             <p id="loginStatus" class="status-message"></p>
         </div>
     </div>
 
-    <!-- Script integrated with payment system -->
     <script src="funcionamiento.js"></script>
 </body>
 

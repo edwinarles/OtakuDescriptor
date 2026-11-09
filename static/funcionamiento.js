@@ -1118,6 +1118,12 @@ function handleLogout() {
     }
 }
 
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const nav = document.querySelector('.header-nav');
+    if (nav) nav.classList.toggle('nav-open');
+}
+
 // Event Listeners for Inputs
 document.getElementById('searchInput')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') buscar();

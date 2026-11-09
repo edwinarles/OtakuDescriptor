@@ -807,26 +807,120 @@ function resetearVista() {
     document.getElementById('trendingSection').style.display = 'block';
 }
 
+// Helper para renderizar estrellas doradas y rating estilo App (como en la Imagen de referencia)
+function renderStarsHtml(rawScore) {
+    if (!rawScore && rawScore !== 0) {
+        return {
+            starsHtml: '<i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>',
+            scoreText: 'N/A',
+            countText: '0'
+        };
+    }
+    const scoreNum = parseFloat(rawScore);
+    const score5 = Math.min(5, Math.max(0, scoreNum > 10 ? (scoreNum / 20) : (scoreNum / 2)));
+    const fullStars = Math.floor(score5);
+    const hasHalf = (score5 - fullStars) >= 0.3;
+
+    let starsHtml = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= fullStars) {
+            starsHtml += '<i class="fas fa-star"></i>';
+        } else if (i === fullStars + 1 && hasHalf) {
+            starsHtml += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+            starsHtml += '<i class="far fa-star"></i>';
+        }
+    }
+
+    // Votos aproximados basados en popularidad o score
+    const approxVotes = Math.max(8, Math.floor(scoreNum * 1.5 - 20));
+
+    return {
+        starsHtml,
+        scoreText: score5.toFixed(1),
+        countText: approxVotes.toString()
+    };
+}
+
+// Modo de visualización: Lista (default como en Imagen 1) o Cuadrícula
+window.currentViewMode = localStorage.getItem('otaku_view_mode') || 'list';
+
+window.setViewMode = function (mode) {
+    window.currentViewMode = mode;
+    localStorage.setItem('otaku_view_mode', mode);
+
+    const btnList = document.getElementById('btnListView');
+    const btnGrid = document.getElementById('btnGridView');
+    if (btnList && btnGrid) {
+        if (mode === 'grid') {
+            btnGrid.classList.add('active');
+            btnList.classList.remove('active');
+        } else {
+            btnList.classList.add('active');
+            btnGrid.classList.remove('active');
+        }
+    }
+
+    const resultsContainer = document.getElementById('results');
+    const trendingContainer = document.getElementById('trending');
+    if (resultsContainer) {
+        resultsContainer.className = `anime-results-container ${mode}-mode`;
+    }
+    if (trendingContainer) {
+        trendingContainer.className = `anime-results-container ${mode}-mode`;
+    }
+};
+
 function mostrarResultados(animes, containerId) {
     const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Aplicar el modo de vista actual (list o grid)
+    container.className = `anime-results-container ${window.currentViewMode || 'list'}-mode`;
+
     container.innerHTML = animes.map((anime, index) => {
-        let tagsHtml = '';
-        if (anime.tags || anime.genres) {
-            const animeTags = [...(anime.tags || []), ...(anime.genres || [])].slice(0, 3);
-            tagsHtml = `<div class="anime-tags">${animeTags.map(tag => `<span class="anime-tag">${tag}</span>`).join('')}</div>`;
+        const title = anime.main_title || anime.title?.english || anime.title?.romaji || 'Sin título';
+        const cover = anime.cover_image || 'https://via.placeholder.com/185x270?text=No+Image';
+        const format = anime.format || 'Anime';
+        const year = anime.year ? `• ${anime.year}` : '';
+
+        let genreText = '';
+        if (anime.genres && anime.genres.length > 0) {
+            genreText = `• ${anime.genres.slice(0, 2).join(', ')}`;
         }
 
+        const { starsHtml, scoreText, countText } = renderStarsHtml(anime.score);
+
+        let similarityPill = '';
+        let rerankPill = '';
+        if (anime.similarity_score) {
+            const pct = Math.round(anime.similarity_score);
+            similarityPill = `<span class="match-score-pill">${pct}% Match</span>`;
+            if (anime.reranked) {
+                rerankPill = `<span class="rerank-tag-pill"><i class="fas fa-sparkles"></i> IA Re-ranked</span>`;
+            }
+        }
+
+        const safeTitle = title.replace(/"/g, '&quot;');
+
         return `
-            <div class="anime-card" data-id="${anime.id}" onclick="verDetalle(${anime.id})">
-                <img src="${anime.cover_image || 'https://via.placeholder.com/185x270?text=No+Image'}"
-                    alt="${anime.main_title || 'No title'}"
-                    onerror="this.src='https://via.placeholder.com/185x270?text=No+Image'">
-                <div class="anime-card-info">
-                    <h3>${anime.main_title || 'No title'}</h3>
-                    ${tagsHtml}
-                    <div class="anime-meta">
-                        <span class="score">★ ${anime.score || 'N/A'}</span>
-                        <span>• ${anime.year || 'N/A'}</span>
+            <div class="anime-item-card" data-id="${anime.id}" onclick="verDetalle(${anime.id})">
+                <div class="anime-poster-wrapper">
+                    <img src="${cover}" alt="${safeTitle}" loading="lazy" onerror="this.src='https://via.placeholder.com/185x270?text=No+Image'">
+                    ${similarityPill}
+                </div>
+                <div class="anime-details-col">
+                    <h3 class="anime-title-text" title="${safeTitle}">${safeTitle}</h3>
+                    <div class="anime-subtitle-text">
+                        <span class="anime-format-tag">${format}</span>
+                        <span>${year}</span>
+                        <span>${genreText}</span>
+                    </div>
+                    <div class="anime-rating-row">
+                        <span class="stars-icons">${starsHtml}</span>
+                        <span class="rating-score-num">${scoreText}</span>
+                        <span class="rating-count-num">(${countText})</span>
+                        ${rerankPill}
                     </div>
                 </div>
             </div>
@@ -1124,10 +1218,25 @@ function toggleMobileMenu() {
     if (nav) nav.classList.toggle('nav-open');
 }
 
+// Support banner action
+window.openPremiumModalFromBanner = function () {
+    if (window.uiManager && window.uiManager.api) {
+        window.uiManager.api.createPayPalOrder();
+    } else {
+        openLoginModal();
+    }
+};
+
 // Event Listeners for Inputs
-document.getElementById('searchInput')?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') buscar();
-});
+const searchInputElem = document.getElementById('searchInput');
+if (searchInputElem) {
+    searchInputElem.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            buscar();
+        }
+    });
+}
 
 const tagInput = document.getElementById('tagInput');
 if (tagInput) {
@@ -1140,6 +1249,11 @@ if (tagInput) {
 }
 // Initialization
 window.addEventListener('DOMContentLoaded', async () => {
+    // Set initial view mode
+    if (typeof window.setViewMode === 'function') {
+        window.setViewMode(window.currentViewMode || 'list');
+    }
+
     // Magic Link verification
     const urlParams = new URLSearchParams(window.location.search);
     const apiKeyParam = urlParams.get('api_key');

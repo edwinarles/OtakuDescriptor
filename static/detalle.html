@@ -1,199 +1,266 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Details - OtakuSearch</title>
+    <title>Detalle del Anime — OtakuDescriptor</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5958120162111988"
         crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --primary-light: #f5f3ff;
+            --primary-border: #ede9fe;
+            --blue-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            --text-main: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --bg-page: #f8fafc;
+            --border-light: #e2e8f0;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-2xl: 24px;
+        }
+
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e1b3a 0%, #1e224a 40%, #1b2d63 100%);
-            color: white;
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-body);
             min-height: 100vh;
-            padding: 20px;
+            line-height: 1.6;
+            padding: 24px 20px 60px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 980px;
             margin: 0 auto;
         }
 
         .back-button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1em;
-            border-radius: 10px;
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1.5px solid var(--border-light);
+            padding: 10px 20px;
+            font-size: 0.92rem;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 30px;
-            transition: all 0.3s;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .back-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateX(-5px);
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+            transform: translateX(-3px);
         }
 
         .detail-card {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
+            background: #ffffff;
+            border-radius: var(--radius-2xl);
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1.5px solid var(--border-light);
+            box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.05);
+        }
+
+        .banner-wrapper {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            overflow: hidden;
         }
 
         .banner {
             width: 100%;
-            height: 300px;
+            height: 100%;
             object-fit: cover;
+            opacity: 0.85;
         }
 
         .content {
-            padding: 40px;
+            padding: 36px 40px;
         }
 
-        .header {
+        .header-section {
             display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 32px;
+            margin-top: -80px;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 2;
         }
 
         .cover {
-            width: 200px;
-            height: 300px;
+            width: 180px;
+            height: 260px;
             object-fit: cover;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+            border: 4px solid #ffffff;
             flex-shrink: 0;
+            background: #f1f5f9;
         }
 
         .info {
             flex: 1;
+            padding-top: 70px;
         }
 
         h1 {
-            font-size: 2.5em;
-            margin: 0 0 10px 0;
-            word-wrap: break-word;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+            line-height: 1.25;
+            letter-spacing: -0.025em;
         }
 
         .titles {
-            opacity: 0.8;
-            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 16px;
         }
 
         .titles div {
-            margin: 5px 0;
+            margin: 4px 0;
         }
 
-        .rating {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 20px;
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 18px;
+            border: 1px solid #fde68a;
         }
 
         .meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 8px;
             margin-bottom: 20px;
         }
 
         .meta-item {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.95em;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--border-light);
         }
 
         .section {
-            margin-top: 30px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
         }
 
         .section h2 {
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-            padding-bottom: 10px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .description {
             line-height: 1.8;
-            font-size: 1.05em;
-            opacity: 0.95;
+            font-size: 1.02rem;
+            color: #334155;
         }
 
-        .tags {
+        .genres, .tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .tag {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.9em;
-        }
-
-        .genres {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 12px;
         }
 
         .genre {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.95em;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary-border);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .tag {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid var(--border-light);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
         }
 
         .error-message {
             text-align: center;
-            padding: 40px;
-            font-size: 1.2em;
+            padding: 60px 20px;
+            font-size: 1.2rem;
+            color: #dc2626;
+            background: #ffffff;
+            border-radius: var(--radius-2xl);
+            border: 1.5px solid #fee2e2;
         }
 
         @media (max-width: 768px) {
             .content {
-                padding: 20px;
+                padding: 24px 20px;
             }
 
-            .header {
+            .header-section {
                 flex-direction: column;
                 align-items: center;
+                text-align: center;
+                margin-top: -60px;
+                gap: 16px;
             }
 
             .cover {
-                width: 100%;
-                max-width: 300px;
-                height: auto;
+                width: 150px;
+                height: 220px;
+            }
+
+            .info {
+                padding-top: 0;
             }
 
             h1 {
-                font-size: 1.8em;
-                text-align: center;
+                font-size: 1.6rem;
             }
 
-            .titles {
-                text-align: center;
+            .meta {
+                justify-content: center;
             }
         }
     </style>
@@ -201,46 +268,50 @@
 
 <body>
     <div class="container">
-        <button class="back-button" onclick="goBack()">← Back to results</button>
+        <button class="back-button" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> Volver a los resultados
+        </button>
 
         <div id="errorContainer" class="error-message" style="display: none;">
-            ❌ Could not load anime details.
+            ❌ No se pudo cargar el detalle del anime. Redirigiendo...
         </div>
 
         <div id="detailContainer" class="detail-card" style="display: none;">
-            <img id="banner" class="banner" src="" alt="Banner" onerror="this.style.display='none'">
+            <div class="banner-wrapper">
+                <img id="banner" class="banner" src="" alt="Banner" onerror="this.style.display='none'">
+            </div>
 
             <div class="content">
-                <div class="header">
+                <div class="header-section">
                     <img id="cover" class="cover" src="" alt="Cover">
                     <div class="info">
-                        <h1 id="title">Loading...</h1>
+                        <h1 id="title">Cargando anime...</h1>
                         <div class="titles">
                             <div id="titleRomaji"></div>
                             <div id="titleNative"></div>
                         </div>
-                        <div class="rating" id="rating"></div>
+                        <div class="rating-badge" id="rating"></div>
                         <div class="meta" id="metaContainer"></div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h2>📖 Description</h2>
+                    <h2><i class="fas fa-book-open text-purple-600"></i> Sinopsis</h2>
                     <div class="description" id="description"></div>
                 </div>
 
                 <div class="section" id="genresSection" style="display: none;">
-                    <h2>🎭 Genres</h2>
+                    <h2><i class="fas fa-masks-theater text-purple-600"></i> Géneros</h2>
                     <div class="genres" id="genres"></div>
                 </div>
 
                 <div class="section" id="tagsSection" style="display: none;">
-                    <h2>🏷️ Tags</h2>
+                    <h2><i class="fas fa-tags text-purple-600"></i> Etiquetas</h2>
                     <div class="tags" id="tags"></div>
                 </div>
 
                 <div class="section" id="statsSection" style="display: none;">
-                    <h2>📊 Statistics</h2>
+                    <h2><i class="fas fa-chart-bar text-purple-600"></i> Estadísticas</h2>
                     <div class="meta" id="statsContainer"></div>
                 </div>
             </div>
@@ -253,7 +324,7 @@
         }
 
         function cleanHTML(html) {
-            if (!html) return 'No description available.';
+            if (!html) return 'No hay descripción disponible.';
             return html
                 .replace(/<br\s*\/?>/gi, '<br><br>')
                 .replace(/\r\n/g, '<br><br>');
@@ -269,7 +340,7 @@
                 }
 
                 const anime = JSON.parse(animeData);
-                console.log('Anime loaded:', anime);
+                console.log('Anime cargado:', anime);
 
                 // Show container
                 document.getElementById('detailContainer').style.display = 'block';
@@ -277,6 +348,9 @@
                 // Images
                 if (anime.banner_image) {
                     document.getElementById('banner').src = anime.banner_image;
+                    document.getElementById('banner').style.display = 'block';
+                } else {
+                    document.getElementById('banner').style.display = 'none';
                 }
                 document.getElementById('cover').src = anime.cover_image || 'https://via.placeholder.com/200x300?text=No+Image';
                 document.getElementById('cover').onerror = function () {
@@ -284,26 +358,27 @@
                 };
 
                 // Main title
-                document.getElementById('title').textContent = anime.main_title || 'No title';
+                document.getElementById('title').textContent = anime.main_title || 'Sin título';
 
                 // Alternative titles
                 if (anime.title) {
                     if (anime.title.romaji) {
-                        document.getElementById('titleRomaji').textContent = `📝 ${anime.title.romaji}`;
+                        document.getElementById('titleRomaji').textContent = `📝 Romaji: ${anime.title.romaji}`;
                     }
                     if (anime.title.native) {
-                        document.getElementById('titleNative').textContent = `🈯 ${anime.title.native}`;
+                        document.getElementById('titleNative').textContent = `🈯 Kanji: ${anime.title.native}`;
                     }
                 }
 
                 // Rating
-                document.getElementById('rating').innerHTML = `⭐ ${anime.score || 'N/A'} / 100`;
+                const score = anime.score || 'N/A';
+                document.getElementById('rating').innerHTML = `⭐ ${score} / 100 Calificación`;
 
                 // Metadata
                 const metaHTML = [];
                 if (anime.year) metaHTML.push(`<div class="meta-item">📅 ${anime.year}</div>`);
                 if (anime.season) metaHTML.push(`<div class="meta-item">🌸 ${anime.season}</div>`);
-                if (anime.episodes) metaHTML.push(`<div class="meta-item">📺 ${anime.episodes} episodes</div>`);
+                if (anime.episodes) metaHTML.push(`<div class="meta-item">📺 ${anime.episodes} episodios</div>`);
                 if (anime.duration) metaHTML.push(`<div class="meta-item">⏱️ ${anime.duration} min</div>`);
                 if (anime.format) metaHTML.push(`<div class="meta-item">📱 ${anime.format}</div>`);
                 if (anime.status) metaHTML.push(`<div class="meta-item">🎬 ${anime.status}</div>`);
@@ -312,8 +387,8 @@
                 }
                 document.getElementById('metaContainer').innerHTML = metaHTML.join('');
 
-                // Description (only uses anime.description)
-                const desc = anime.description || 'No description available.';
+                // Description
+                const desc = anime.description || 'No hay descripción disponible.';
                 document.getElementById('description').innerHTML = cleanHTML(desc);
 
                 // Genres
@@ -336,13 +411,13 @@
                 if (anime.popularity || anime.favourites) {
                     document.getElementById('statsSection').style.display = 'block';
                     const statsHTML = [];
-                    if (anime.popularity) statsHTML.push(`<div class="meta-item">👥 ${anime.popularity.toLocaleString()} users</div>`);
-                    if (anime.favourites) statsHTML.push(`<div class="meta-item">❤️ ${anime.favourites.toLocaleString()} favorites</div>`);
+                    if (anime.popularity) statsHTML.push(`<div class="meta-item">👥 ${anime.popularity.toLocaleString()} usuarios</div>`);
+                    if (anime.favourites) statsHTML.push(`<div class="meta-item">❤️ ${anime.favourites.toLocaleString()} favoritos</div>`);
                     document.getElementById('statsContainer').innerHTML = statsHTML.join('');
                 }
 
             } catch (error) {
-                console.error('Error loading details:', error);
+                console.error('Error cargando detalles:', error);
                 showError();
             }
         }
@@ -356,7 +431,6 @@
             }, 3000);
         }
 
-        // Load details when page loads
         window.addEventListener('DOMContentLoaded', loadDetails);
     </script>
 </body>

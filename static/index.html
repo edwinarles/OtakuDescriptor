@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="HsZhG6rZ_JO-Nne16hsYNrnlFIhUVQF7hCmGT_6d-Og" />
-    <title>OtakuDescriptor</title>
+    <title>OtakuDescriptor — ¿No recuerdas el nombre de ese anime?</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5958120162111988"
         crossorigin="anonymous"></script>
 
@@ -14,30 +14,62 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <!-- Top Support Alert / Announcement -->
+    <div class="top-announcement">
+        <div class="announcement-content">
+            <span class="announcement-pill">✨ Demo v1.0</span>
+            <span class="announcement-text">¡Apóyanos a mantener activa la IA gratuita!</span>
+            <a href="#support-section" class="announcement-link">Saber más <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo">
-                <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                    <circle cx="16" cy="16" r="14" stroke="#7c3aed" stroke-width="2.5" fill="none"/>
-                    <circle cx="16" cy="16" r="8" fill="#7c3aed" opacity="0.15"/>
-                    <circle cx="16" cy="16" r="4" fill="#7c3aed"/>
-                </svg>
-                <span>Otaku Descriptor</span>
+            <div class="logo" onclick="window.location.reload()" style="cursor: pointer;">
+                <!-- Cute Cat / Anime Mascot Avatar from reference images -->
+                <div class="mascot-avatar">
+                    <svg viewBox="0 0 44 44" class="mascot-svg" width="36" height="36">
+                        <!-- Head Base -->
+                        <circle cx="22" cy="22" r="19" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.8"/>
+                        <!-- Cat Ears with Cyan / Blue tint -->
+                        <path d="M 7 13 L 13 4 L 18 10 Z" fill="#38bdf8"/>
+                        <path d="M 9 12 L 13 6 L 16 10 Z" fill="#bae6fd"/>
+                        <path d="M 37 13 L 31 4 L 26 10 Z" fill="#38bdf8"/>
+                        <path d="M 35 12 L 31 6 L 28 10 Z" fill="#bae6fd"/>
+                        <!-- Cute Hair Fringe -->
+                        <path d="M 12 16 Q 16 22 22 18 Q 28 22 32 16" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                        <!-- Smiling Happy Anime Eyes -->
+                        <path d="M 13 22 Q 17 18 20 22" fill="none" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
+                        <path d="M 24 22 Q 27 18 31 22" fill="none" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
+                        <!-- Cheeks Blush -->
+                        <ellipse cx="12" cy="26" rx="3.5" ry="2" fill="#f472b6" opacity="0.6"/>
+                        <ellipse cx="32" cy="26" rx="3.5" ry="2" fill="#f472b6" opacity="0.6"/>
+                        <!-- Cute Mouth -->
+                        <path d="M 19 26 Q 22 28 25 26" fill="none" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="logo-title">Otaku Descriptor</span>
             </div>
+
             <nav class="header-nav">
-                <div class="demo-badge">Demo v1.0</div>
+                <a href="#support-section" class="support-header-badge">
+                    <i class="fas fa-heart text-pink-500"></i>
+                    <span>Demo v1.0 — ¡Apóyanos!</span>
+                </a>
                 <button id="loginBtn" class="login-btn" onclick="openLoginModal()">
-                    <i class="fas fa-user-circle"></i> Ingresar
+                    <i class="fas fa-user-circle"></i>
+                    <span>Ingresar</span>
                 </button>
                 <button id="logoutBtn" class="logout-btn" onclick="handleLogout()" style="display: none;">
-                    <i class="fas fa-sign-out-alt"></i> Salir
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Salir</span>
                 </button>
-                <button class="menu-btn" id="menuToggle" onclick="toggleMobileMenu()">
+                <button class="menu-btn" id="menuToggle" onclick="toggleMobileMenu()" aria-label="Menú">
                     <i class="fas fa-bars"></i>
                 </button>
             </nav>
@@ -46,163 +78,282 @@
 
     <!-- Hero Section -->
     <section class="hero">
-        <!-- Decorative anime eyes illustration -->
-        <div class="hero-illustration">
-            <svg viewBox="0 0 400 120" class="anime-eyes-svg">
-                <!-- Left eye -->
-                <ellipse cx="130" cy="60" rx="55" ry="45" fill="none" stroke="#d1d5db" stroke-width="2"/>
-                <ellipse cx="130" cy="60" rx="55" ry="45" fill="none" stroke="#e5e7eb" stroke-width="1" opacity="0.5"/>
-                <circle cx="135" cy="58" r="22" fill="#1f2937" opacity="0.08"/>
-                <circle cx="135" cy="58" r="15" fill="#374151" opacity="0.12"/>
-                <circle cx="140" cy="52" r="6" fill="white" opacity="0.6"/>
-                <path d="M 75 35 Q 130 10 185 35" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
-                <!-- Right eye -->
-                <ellipse cx="270" cy="60" rx="55" ry="45" fill="none" stroke="#d1d5db" stroke-width="2"/>
-                <ellipse cx="270" cy="60" rx="55" ry="45" fill="none" stroke="#e5e7eb" stroke-width="1" opacity="0.5"/>
-                <circle cx="265" cy="58" r="22" fill="#1f2937" opacity="0.08"/>
-                <circle cx="265" cy="58" r="15" fill="#374151" opacity="0.12"/>
-                <circle cx="260" cy="52" r="6" fill="white" opacity="0.6"/>
-                <path d="M 215 35 Q 270 10 325 35" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Floating Ambient Sparkles (like in user reference images) -->
+        <div class="ambient-sparkles" aria-hidden="true">
+            <span class="sparkle sp-1">✦</span>
+            <span class="sparkle sp-2">✧</span>
+            <span class="sparkle sp-3">✦</span>
+            <span class="sparkle sp-4">✧</span>
+            <span class="sparkle sp-5">✦</span>
+        </div>
+
+        <!-- High-fidelity Anime Eyes Illustration from reference image -->
+        <div class="hero-illustration" aria-hidden="true">
+            <svg viewBox="0 0 320 110" class="anime-face-svg" width="260" height="90">
+                <defs>
+                    <!-- Eye Gradient -->
+                    <linearGradient id="irisGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#1e293b"/>
+                        <stop offset="60%" stop-color="#334155"/>
+                        <stop offset="100%" stop-color="#64748b"/>
+                    </linearGradient>
+                    <linearGradient id="eyebrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#94a3b8"/>
+                        <stop offset="50%" stop-color="#475569"/>
+                        <stop offset="100%" stop-color="#94a3b8"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Left Eyebrow -->
+                <path d="M 68 28 Q 105 12 135 24" fill="none" stroke="url(#eyebrowGrad)" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Left Eye Upper Lash Line -->
+                <path d="M 65 52 Q 95 32 138 48" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round"/>
+                <path d="M 125 43 L 138 48" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                <!-- Left Double Eyelid -->
+                <path d="M 75 42 Q 100 34 125 42" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+                <!-- Left Iris -->
+                <ellipse cx="102" cy="58" rx="20" ry="22" fill="url(#irisGrad)"/>
+                <!-- Left Pupil -->
+                <ellipse cx="102" cy="60" rx="11" ry="13" fill="#020617"/>
+                <!-- Left Eye Highlights -->
+                <ellipse cx="96" cy="52" rx="6" ry="7" fill="#ffffff"/>
+                <circle cx="110" cy="66" r="3.2" fill="#ffffff" opacity="0.9"/>
+                <!-- Left Lower Lash Line -->
+                <path d="M 85 75 Q 105 78 122 73" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round"/>
+
+                <!-- Right Eyebrow -->
+                <path d="M 185 24 Q 215 12 252 28" fill="none" stroke="url(#eyebrowGrad)" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Right Eye Upper Lash Line -->
+                <path d="M 182 48 Q 225 32 255 52" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round"/>
+                <path d="M 195 48 L 182 48" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                <!-- Right Double Eyelid -->
+                <path d="M 195 42 Q 220 34 245 42" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+                <!-- Right Iris -->
+                <ellipse cx="218" cy="58" rx="20" ry="22" fill="url(#irisGrad)"/>
+                <!-- Right Pupil -->
+                <ellipse cx="218" cy="60" rx="11" ry="13" fill="#020617"/>
+                <!-- Right Eye Highlights -->
+                <ellipse cx="212" cy="52" rx="6" ry="7" fill="#ffffff"/>
+                <circle cx="226" cy="66" r="3.2" fill="#ffffff" opacity="0.9"/>
+                <!-- Right Lower Lash Line -->
+                <path d="M 198 73 Q 215 78 235 75" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round"/>
+
+                <!-- Minimalist Anime Nose Dot -->
+                <ellipse cx="160" cy="85" rx="1.5" ry="2.2" fill="#64748b"/>
             </svg>
         </div>
 
+        <!-- Typography requested: Grande y contundente en color oscuro -->
         <h1 class="hero-title">¿No recuerdas el nombre<br>de ese anime?</h1>
-        <p class="hero-subtitle">Describe cualquier anime con tus propias palabras y deja que la IA lo encuentre por ti</p>
+        <p class="hero-subtitle">Describe la trama, personajes o escenas con tus propias palabras y nuestra IA se encargará de encontrarlo.</p>
 
-        <!-- Search Container -->
+        <!-- Search Container (rounded-2xl, fondo blanco y borde sutil) -->
         <div class="search-container">
-            <div class="search-box">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput"
-                        placeholder="Ej: Chica que viaja en el tiempo y salta en el aire...">
+            <div class="search-card-wrapper">
+                <div class="search-input-area">
+                    <i class="fas fa-search search-icon-inside"></i>
+                    <textarea id="searchInput" rows="2"
+                        placeholder="Ej: Chica que viaja en el tiempo y salta en el aire..."></textarea>
                 </div>
-                <button class="search-btn" onclick="buscar()">Buscar</button>
-            </div>
-            <div class="search-actions">
-                <button class="tags-toggle-btn" onclick="toggleTagsPanel()">
-                    <i class="fas fa-tags"></i> Buscar por Tags
-                </button>
+                <div class="search-card-footer">
+                    <button class="tags-pill-btn" onclick="toggleTagsPanel()" type="button">
+                        <i class="fas fa-tags"></i>
+                        <span>Filtrar por Tags</span>
+                    </button>
+                    <button class="search-action-btn" onclick="buscar()" type="button" id="mainSearchBtn">
+                        <i class="fas fa-sparkles"></i>
+                        <span>Buscar</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Tags Panel -->
+        <!-- Tags Panel (Collapsible) -->
         <div id="tagsPanel" style="display: none;" class="tags-panel">
             <div class="tags-panel-header">
-                <h3>Buscar por Tags</h3>
-                <p>Selecciona uno o más tags para filtrar anime. El anime debe tener TODOS los tags seleccionados.</p>
+                <div>
+                    <h3>Filtrar anime por etiquetas</h3>
+                    <p>Selecciona una o más categorías para acotar tu búsqueda.</p>
+                </div>
+                <button class="close-tags-btn" onclick="toggleTagsPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div id="selectedTagsContainer" class="selected-tags-container" style="display: none;"></div>
             <div class="tags-grid">
-                <h4>Tags Disponibles:</h4>
+                <h4>Etiquetas disponibles:</h4>
                 <div id="tagsContainer" class="tags-container"></div>
             </div>
         </div>
     </section>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="container">
-        <!-- Filter Tabs -->
-        <div class="filters" id="filters">
-            <button class="filter-btn active" onclick="cargarTendencias(this, 'all')">Todos</button>
-            <button class="filter-btn" onclick="cargarTendencias(this, 'trending')">En Tendencia</button>
-            <button class="filter-btn" onclick="cargarTendencias(this, 'popular')">Más Populares</button>
-            <button class="filter-btn" onclick="cargarTendencias(this, 'top_rated')">Mejor Calificados</button>
-        </div>
-
-        <!-- Loading State -->
-        <div id="loading" class="loading" style="display: none;">
-            <div class="loading-animation">
-                <div class="loading-orb orb-1"></div>
-                <div class="loading-orb orb-2"></div>
-                <div class="loading-orb orb-3"></div>
+        <!-- Section Controls Bar (Filters + View Toggle matching Image 1) -->
+        <div class="content-controls-bar">
+            <!-- Filter Pills -->
+            <div class="filters" id="filters">
+                <button class="filter-btn active" onclick="cargarTendencias(this, 'all')">
+                    <span>Todos</span>
+                </button>
+                <button class="filter-btn" onclick="cargarTendencias(this, 'trending')">
+                    <i class="fas fa-fire"></i> <span>Tendencias</span>
+                </button>
+                <button class="filter-btn" onclick="cargarTendencias(this, 'popular')">
+                    <i class="fas fa-heart"></i> <span>Populares</span>
+                </button>
+                <button class="filter-btn" onclick="cargarTendencias(this, 'top_rated')">
+                    <i class="fas fa-star"></i> <span>Mejor Calificados</span>
+                </button>
             </div>
-            <p class="loading-text">Buscando con IA...</p>
-            <p class="loading-subtext">Analizando descripciones y re-rankeando resultados</p>
+
+            <!-- View Switcher Toggle (List vs Grid as seen in Image 1) -->
+            <div class="view-switcher" id="viewSwitcher">
+                <button class="view-btn active" id="btnListView" onclick="setViewMode('list')" title="Vista Lista">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="view-btn" id="btnGridView" onclick="setViewMode('grid')" title="Vista Cuadrícula">
+                    <i class="fas fa-th-large"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- Search Results -->
+        <!-- Loading State: Animación fluida con elementos flotantes en tonos violeta -->
+        <div id="loading" class="loading-state" style="display: none;">
+            <div class="violet-loader-wrapper">
+                <div class="floating-orb orb-large"></div>
+                <div class="floating-orb orb-medium"></div>
+                <div class="floating-orb orb-small"></div>
+                <div class="loader-center-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+            </div>
+            <h3 class="loading-main-text">Buscando con IA y Cross-Encoder...</h3>
+            <p class="loading-sub-text">Analizando sinopsis, similitud semántica y re-rankeando candidatos</p>
+        </div>
+
+        <!-- Search Results Section -->
         <div id="resultsSection" style="display: none;">
-            <div class="section-header">
-                <h2 id="resultsTitle">Resultados de Búsqueda</h2>
-                <span id="resultsCount" class="results-count"></span>
+            <div class="section-header-row">
+                <div>
+                    <h2 id="resultsTitle" class="section-title">Resultados de Búsqueda</h2>
+                    <p id="resultsSubtitle" class="section-subtitle">Ordenados por relevancia semántica</p>
+                </div>
+                <span id="resultsCount" class="results-badge"></span>
             </div>
-            <div id="results" class="anime-grid"></div>
+            <div id="results" class="anime-results-container list-mode"></div>
         </div>
 
-        <!-- Trending Section -->
+        <!-- Trending / Browse Section -->
         <div id="trendingSection">
-            <div id="trending" class="anime-grid"></div>
+            <div id="trending" class="anime-results-container list-mode"></div>
             <div id="pagination" class="pagination-container" style="display: none;"></div>
         </div>
 
         <!-- Empty State -->
         <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-state-icon">
-                <i class="fas fa-search"></i>
+            <div class="empty-state-card">
+                <div class="empty-icon-bubble">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No se encontraron coincidencias</h3>
+                <p>Intenta usar palabras más generales o describir una escena diferente de ese anime.</p>
+                <button class="btn-clear-search" onclick="document.getElementById('searchInput').value=''; resetearVista(); cargarTendencias(null, 'all');">
+                    Ver colección completa
+                </button>
             </div>
-            <h3>No se encontraron resultados</h3>
-            <p>Intenta ajustar tu búsqueda o explora nuestra colección</p>
         </div>
     </main>
 
-    <!-- Support Banner -->
-    <section class="support-banner">
-        <div class="support-card">
-            <div class="support-icon">
-                <i class="fas fa-heart"></i>
+    <!-- Support Banner: Tarjeta amigable que incentive el soporte (café/donación) -->
+    <section class="support-section" id="support-section">
+        <div class="support-card-container">
+            <div class="support-card-main">
+                <div class="support-badge-header">
+                    <span class="support-version-tag">Demo v1.0</span>
+                    <span class="support-status-indicator"><span class="status-dot"></span> Servidores Activos</span>
+                </div>
+                <div class="support-body-row">
+                    <div class="support-illustration-col">
+                        <div class="coffee-illustration-bubble">
+                            <i class="fas fa-mug-hot coffee-icon"></i>
+                            <div class="steam-line steam-1"></div>
+                            <div class="steam-line steam-2"></div>
+                        </div>
+                    </div>
+                    <div class="support-info-col">
+                        <h2 class="support-headline">Demo v1.0 — ¡Apóyanos a mantener vivo OtakuDescriptor!</h2>
+                        <p class="support-description">
+                            Esta aplicación es un proyecto independiente impulsado por modelos avanzados de Inteligencia Artificial (Embeddings 3072D + Cross-Encoder LLM).
+                            Cada búsqueda consume recursos de cómputo en la nube. Tu apoyo nos permite mantener el servicio 100% gratuito, sin anuncios invasivos y con servidores rápidos.
+                        </p>
+                        <div class="support-actions-row">
+                            <a href="https://buymeacoffee.com" target="_blank" rel="noopener noreferrer" class="coffee-cta-btn">
+                                <i class="fas fa-coffee"></i>
+                                <span>Invítanos un café</span>
+                            </a>
+                            <button onclick="openPremiumModalFromBanner()" class="paypal-cta-btn">
+                                <i class="fab fa-paypal"></i>
+                                <span>Apoyar vía PayPal / Premium</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="support-content">
-                <h3>Demo v1.0 — ¡Apóyanos!</h3>
-                <p>Este proyecto es gratuito y de código abierto. Si te gusta, considera apoyarnos para mantener los servidores activos y seguir mejorando la IA.</p>
-            </div>
-            <a href="https://buymeacoffee.com" target="_blank" rel="noopener" class="support-btn">
-                <i class="fas fa-coffee"></i> Invítanos un café
-            </a>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>OtakuDescriptor &copy; 2026 — Hecho con <i class="fas fa-heart" style="color: #7c3aed;"></i> para la comunidad otaku</p>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span>Otaku Descriptor</span>
+            </div>
+            <p class="footer-copy">© 2026 OtakuDescriptor. Buscador semántico de anime potenciado con Inteligencia Artificial.</p>
+        </div>
     </footer>
 
     <!-- Login Modal -->
     <div id="loginModal" class="modal" style="display: none;">
         <div class="modal-content login-modal-content">
-            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+            <button class="close-modal" onclick="closeLoginModal()" aria-label="Cerrar">&times;</button>
 
             <div class="auth-tabs">
                 <button class="auth-tab active" onclick="switchAuthTab('login')">Iniciar Sesión</button>
                 <button class="auth-tab" onclick="switchAuthTab('register')">Registrarse</button>
             </div>
 
+            <!-- Login Form -->
             <div id="loginForm" class="auth-form">
                 <h2>¡Bienvenido de nuevo!</h2>
+                <p class="modal-subtext">Ingresa con tu correo y contraseña</p>
                 <div class="input-group">
-                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="email" id="loginEmail" placeholder="Tu correo electrónico" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                    <input type="password" id="loginPassword" placeholder="Tu contraseña" required>
                 </div>
                 <button class="btn-primary" onclick="handlePasswordLogin()">Iniciar Sesión</button>
             </div>
 
+            <!-- Register Form -->
             <div id="registerForm" class="auth-form" style="display: none;">
                 <h2>Crear Cuenta</h2>
+                <p class="modal-subtext">Regístrate para obtener más búsquedas gratuitas</p>
                 <div class="input-group">
-                    <input type="email" id="regEmail" placeholder="Email" required>
+                    <input type="email" id="regEmail" placeholder="Tu correo electrónico" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="regPassword" placeholder="Contraseña" required>
+                    <input type="password" id="regPassword" placeholder="Crea una contraseña" required>
                 </div>
-                <button class="btn-primary" onclick="handlePasswordRegister()">Registrarse</button>
+                <button class="btn-primary" onclick="handlePasswordRegister()">Registrarse Gratis</button>
             </div>
 
             <p id="loginStatus" class="status-message"></p>
         </div>
     </div>
 
+    <!-- Main JavaScript -->
     <script src="funcionamiento.js"></script>
 </body>
 
